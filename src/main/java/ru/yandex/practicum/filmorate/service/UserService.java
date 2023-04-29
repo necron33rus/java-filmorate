@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AleradyExistException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class UserService {
 
     public void createUser(User user) throws AleradyExistException {
         validate(user);
-        if(users.containsKey(user.getId())) {
+        if (users.containsKey(user.getId())) {
             log.warn("UserService: Объект с идентификатором {} был уже создан", user.getId());
             throw new AleradyExistException("Объект с идентификатором " + user.getId() + " уже был создан");
         } else {
@@ -33,7 +34,7 @@ public class UserService {
 
     public void updateUser(User user) {
         validate(user);
-        if(users.containsKey(user.getId())) {
+        if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
             log.debug("UserService: Объект с идентификатором {} обновлен", user.getId());
         } else {
@@ -48,12 +49,12 @@ public class UserService {
     }
 
     private void validate(User user) {
-        if(user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
+        if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
             user.setName(user.getLogin());
             log.debug("UserService: Поле name не задано. Значение {} заменено на {} из поля login", user.getName(),
                     user.getLogin());
         }
-        if(user.getId() == 0) {
+        if (user.getId() == 0) {
             user.setId(++increment);
         }
     }

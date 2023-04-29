@@ -17,9 +17,10 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FilmServiceTest {
     private static FilmService filmService;
     private static Film film;
+
     @BeforeAll
     public static void beforeAll() {
-        film =  new Film();
+        film = new Film();
         filmService = new FilmService();
     }
 
@@ -32,7 +33,7 @@ public class FilmServiceTest {
     void shouldAddWhenAddValidFilmData() throws AleradyExistException {
         film.setName("Correct Name");
         film.setDescription("Correct description.");
-        film.setReleaseDate(LocalDate.of(1995,5,26));
+        film.setReleaseDate(LocalDate.of(1995, 5, 26));
         film.setDuration(100);
         filmService.createFilm(film);
         assertNotEquals(0, film.getId());
@@ -42,7 +43,7 @@ public class FilmServiceTest {
     void shouldThrowExceptionWhenAddFailedFilmReleaseDate() {
         film.setName("Correct Name");
         film.setDescription("Correct description");
-        film.setReleaseDate(LocalDate.of(1895,12,27));
+        film.setReleaseDate(LocalDate.of(1895, 12, 27));
         film.setDuration(100);
         FilmValidationException ex = assertThrows(FilmValidationException.class, () -> filmService.createFilm(film));
         assertEquals("Дата релиза 1895-12-27 раньше 28.12.1895г", ex.getMessage());
@@ -52,7 +53,7 @@ public class FilmServiceTest {
     void shouldAddWhenAddValidFilmReleaseDateBoundary() throws AleradyExistException {
         film.setName("Correct Name");
         film.setDescription("Correct description.");
-        film.setReleaseDate(LocalDate.of(1895,12,28));
+        film.setReleaseDate(LocalDate.of(1895, 12, 28));
         film.setDuration(100);
         filmService.createFilm(film);
         assertNotEquals(0, film.getId());
@@ -65,7 +66,7 @@ public class FilmServiceTest {
         film.setDescription("Failed description. Failed description. Failed description. Failed description. " +
                 "Failed description. Failed description. Failed description. Failed description. " +
                 "Failed description. Failed description. F");
-        film.setReleaseDate(LocalDate.of(1995,5,26));
+        film.setReleaseDate(LocalDate.of(1995, 5, 26));
         film.setDuration(100);
         FilmValidationException ex = assertThrows(FilmValidationException.class, () -> filmService.createFilm(film));
         assertEquals("Длина описания превышает 200 символов", ex.getMessage());
@@ -78,7 +79,7 @@ public class FilmServiceTest {
         film.setDescription("Correct description. Correct description. Correct description. Correct description. " +
                 "Correct description. Correct description. Correct description. Correct description. " +
                 "Correct description. Correct des");
-        film.setReleaseDate(LocalDate.of(1995,5,26));
+        film.setReleaseDate(LocalDate.of(1995, 5, 26));
         film.setDuration(100);
         filmService.createFilm(film);
         assertNotEquals(0, film.getId());
@@ -90,7 +91,7 @@ public class FilmServiceTest {
         film.setId(999);
         film.setName("Correct Name");
         film.setDescription("Correct description.");
-        film.setReleaseDate(LocalDate.of(1995,5,26));
+        film.setReleaseDate(LocalDate.of(1995, 5, 26));
         film.setDuration(100);
         NotFoundException ex = assertThrows(NotFoundException.class, () -> filmService.updateFilm(film));
         assertEquals("Объект с идентификатором 999 не найден", ex.getMessage());

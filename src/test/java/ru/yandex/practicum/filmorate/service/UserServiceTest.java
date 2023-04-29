@@ -16,9 +16,10 @@ import static org.junit.jupiter.api.Assertions.*;
 public class UserServiceTest {
     private static UserService userService;
     private static User user;
+
     @BeforeAll
     public static void beforeAll() {
-        user =  new User();
+        user = new User();
         userService = new UserService();
     }
 
