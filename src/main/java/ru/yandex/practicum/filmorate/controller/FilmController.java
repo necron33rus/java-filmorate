@@ -22,18 +22,18 @@ public class FilmController {
     @GetMapping("/films")
     public ResponseEntity<Collection<Film>> getAllFilms() {
         log.info("UserController: Получен GET запрос к эндпоинту /film ");
-        return ResponseEntity.ok(filmService.getAllFilms()) ;
+        return ResponseEntity.ok(filmService.getAllFilms());
     }
 
     @PostMapping("/films")
-    public ResponseEntity<Film> createFilm (@Valid @RequestBody Film film) throws AleradyExistException {
+    public ResponseEntity<Film> createFilm(@Valid @RequestBody Film film) throws AleradyExistException {
         log.info("UserController: Получен POST запрос к эндпоинту /film. Тело запроса: {}", film);
         filmService.createFilm(film);
         return ResponseEntity.ok(film);
     }
 
     @PutMapping("/films")
-    public ResponseEntity<Film> updateOrCreateUser (@Valid @RequestBody Film film) {
+    public ResponseEntity<Film> updateOrCreateUser(@Valid @RequestBody Film film) {
         log.info("UserController: Получен PUT запрос к эндпоинту /film. Тело запроса: {}", film);
         filmService.updateFilm(film);
         return ResponseEntity.ok(film);
