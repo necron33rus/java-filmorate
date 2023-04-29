@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class ExceptionApiHandler extends Throwable {
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorMessage> notFoundException (NotFoundException exception) {
+    public ResponseEntity<ErrorMessage> notFoundException(NotFoundException exception) {
         List<String> errors = Collections.singletonList(exception.getMessage());
         log.warn("Ошибка выполнения запроса: {}", errors);
         return ResponseEntity
