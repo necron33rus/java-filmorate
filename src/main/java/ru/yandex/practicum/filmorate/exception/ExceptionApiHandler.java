@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Slf4j
-public class ExceptionApiHandler extends Throwable {
+public class ExceptionApiHandler {
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorMessage> notFoundException(NotFoundException exception) {
@@ -53,6 +53,15 @@ public class ExceptionApiHandler extends Throwable {
         log.warn("Ошибка выполнения запроса: {}", errors);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorMessage(getErrorsMap(errors)));
+    }
+
+    @ExceptionHandler(Throwable.class)
+    public ResponseEntity<ErrorMessage> unhandleException(Throwable exception) {
+        List<String> errors = Collections.singletonList(exception.getMessage());
+        log.warn("Ошибка выполнения запроса: {}", errors);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorMessage(getErrorsMap(errors)));
     }
 

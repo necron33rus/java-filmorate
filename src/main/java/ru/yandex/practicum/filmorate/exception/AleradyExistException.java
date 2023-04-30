@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.exception;
 
-import java.rmi.AlreadyBoundException;
+import lombok.extern.slf4j.Slf4j;
 
-public class AleradyExistException extends AlreadyBoundException {
-    public AleradyExistException(String s) {
-        super(s);
+@Slf4j
+public class AleradyExistException extends RuntimeException {
+    public AleradyExistException(String message) {
+        super(message);
+        log.warn(message);
     }
 }
