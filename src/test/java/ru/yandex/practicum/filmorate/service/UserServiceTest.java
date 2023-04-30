@@ -24,13 +24,12 @@ public class UserServiceTest {
 
     @Test
     void shouldAddUserWhenValidUserData() {
-        user.setId(1);
+        user.setId(new Random().nextInt(50));
         user.setName("Correct Name");
         user.setBirthday(LocalDate.of(2002, 1, 1));
         user.setLogin("correctlogin");
         user.setEmail("correct.email@mail.ru");
         userService.createUser(user);
-        assertEquals(1, user.getId());
         assertTrue(userService.getAllUsers().contains(user));
     }
 

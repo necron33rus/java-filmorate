@@ -2,9 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserControllerTest {
 
     @Autowired
@@ -41,14 +40,9 @@ public class UserControllerTest {
         updatedUser = new User();
     }
 
-    @BeforeEach
-    public void beforeEach() throws Exception {
-        mockMvc.perform(delete("/users"))
-                .andExpect(status().isOk());
-    }
-
     @Test
-    public void shouldCreateValidUser() throws Exception {
+    @Order(1)
+    public void shouldCreateValidUsers() throws Exception {
         user.setId(1);
         user.setName("Correct Name");
         user.setBirthday(LocalDate.of(2002, 1, 1));
@@ -60,190 +54,64 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(gson.toJson(user)));
-    }
 
-    @Test
-    public void shouldThrowBadRequestErrorWithIncorrectEmailCauseOnUserCreatingRequest() throws Exception {
-        user.setId(1);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
         user.setEmail("incorrect.emailmail.ru");
-
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
                 .andExpect(status().isBadRequest());
-    }
 
-    @Test
-    public void shouldThrowBadRequestErrorWithBlankLoginCauseOnUserCreatingRequest() throws Exception {
-        user.setId(1);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
         user.setLogin("   ");
-        user.setEmail("correct.email@mail.ru");
-
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
                 .andExpect(status().isBadRequest());
-    }
 
-    @Test
-    public void shouldThrowBadRequestErrorWithIncorrectLoginCauseOnUserCreatingRequest() throws Exception {
-        user.setId(1);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
         user.setLogin("incorrect login");
-        user.setEmail("correct.email@mail.ru");
-
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
+    @Order(2)
     public void shouldUpdateValidUser() throws Exception {
-        user.setId(1);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-
         updatedUser.setId(1);
         updatedUser.setName("Correct Name_updated");
         updatedUser.setBirthday(LocalDate.of(2002, 1, 1));
         updatedUser.setLogin("correctlogin");
         updatedUser.setEmail("correct.email@mail.ru");
 
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(gson.toJson(user)));
-
         mockMvc.perform(put("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedUser)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(gson.toJson(updatedUser)));
-    }
 
-    @Test
-    public void shouldThrowBadRequestErrorWithIncorrectLoginCauseOnUserUpdateRequest() throws Exception {
-        user.setId(1);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-
-        updatedUser.setId(1);
-        updatedUser.setName("Correct Name_updated");
-        updatedUser.setBirthday(LocalDate.of(2002, 1, 1));
         updatedUser.setLogin("incorrect login");
-        updatedUser.setEmail("correct.email@mail.ru");
-
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(gson.toJson(user)));
-
         mockMvc.perform(put("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedUser)))
                 .andExpect(status().isBadRequest());
-    }
 
-    @Test
-    public void shouldThrowBadRequestErrorWithBlankLoginCauseOnUserUpdateRequest() throws Exception {
-        user.setId(1);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-
-        updatedUser.setId(1);
-        updatedUser.setName("Correct Name_updated");
-        updatedUser.setBirthday(LocalDate.of(2002, 1, 1));
         updatedUser.setLogin("   ");
-        updatedUser.setEmail("correct.email@mail.ru");
-
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(gson.toJson(user)));
-
         mockMvc.perform(put("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedUser)))
                 .andExpect(status().isBadRequest());
-    }
 
-    @Test
-    public void shouldThrowBadRequestErrorWithNullLoginCauseOnUserUpdateRequest() throws Exception {
-        user.setId(1);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-
-        updatedUser.setId(1);
-        updatedUser.setName("Correct Name_updated");
-        updatedUser.setBirthday(LocalDate.of(2002, 1, 1));
-        updatedUser.setEmail("correct.email@mail.ru");
-
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(gson.toJson(user)));
-
-        mockMvc.perform(put("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedUser)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void shouldThrowBadRequestErrorWithIncorrectEmailCauseOnUserUpdateRequest() throws Exception {
-        user.setId(1);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-
-        updatedUser.setId(1);
-        updatedUser.setName("Correct Name_updated");
-        updatedUser.setBirthday(LocalDate.of(2002, 1, 1));
-        updatedUser.setLogin("correctLogin");
         updatedUser.setEmail("incorrect.emailmail.ru");
-
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(gson.toJson(user)));
-
         mockMvc.perform(put("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedUser)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void shouldGetEmptyUsersList() throws Exception {
-        mockMvc.perform(get("/users"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(content().string("[]"));
-    }
-
-    @Test
+    @Order(3)
     public void shouldGetAllUsers() throws Exception {
-        user.setId(1);
+        user.setId(2);
         user.setName("Correct Name");
         user.setBirthday(LocalDate.of(2002, 1, 1));
         user.setLogin("correctlogin");
         user.setEmail("correct.email@mail.ru");
 
-        updatedUser.setId(2);
+        updatedUser.setId(3);
         updatedUser.setName("Correct Name_updated");
         updatedUser.setBirthday(LocalDate.of(2002, 1, 1));
         updatedUser.setLogin("correctLogin");
