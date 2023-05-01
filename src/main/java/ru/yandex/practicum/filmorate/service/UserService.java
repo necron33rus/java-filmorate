@@ -3,11 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.AleradyExistException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,21 +17,16 @@ public class UserService {
     private final Map<Integer, User> users = new HashMap<>();
     private int currentId;
 
-    public Collection<User> getAllUsers() {
+    public List<User> getAllUsers() {
         log.debug("UserService: Массив объектов передан в ответ на запрос");
         return List.copyOf(users.values());
     }
 
     public void createUser(User user) {
         validate(user);
-        if (users.containsKey(user.getId())) {
-            log.warn("UserService: Объект с идентификатором {} был уже создан", user.getId());
-            throw new AleradyExistException("Объект с идентификатором " + user.getId() + " уже был создан");
-        } else {
-            user.setId(++currentId);
-            users.put(user.getId(), user);
-            log.debug("UserService: Создан объект {} с идентификатором {}", user, user.getId());
-        }
+        user.setId(++currentId);
+        users.put(user.getId(), user);
+        log.debug("UserService: Создан объект {} с идентификатором {}", user, user.getId());
     }
 
     public void updateUser(User user) {

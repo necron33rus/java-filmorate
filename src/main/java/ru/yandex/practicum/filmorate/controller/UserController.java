@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -19,7 +19,7 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    public Collection<User> getAllUsers() {
+    public List<User> getAllUsers() {
         log.info("UserController: Получен GET запрос к эндпоинту /users");
         return userService.getAllUsers();
     }

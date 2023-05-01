@@ -10,7 +10,7 @@ public class LaterThanValidator implements ConstraintValidator<LaterThan, LocalD
     @Override
     public boolean isValid(LocalDate localDate, ConstraintValidatorContext constraintValidatorContext) {
         if (localDate != null) {
-            return localDate.isAfter(FIRST_RELEASE_DATE);
+            return !localDate.isBefore(FIRST_RELEASE_DATE);
         }
         return false;
     }
