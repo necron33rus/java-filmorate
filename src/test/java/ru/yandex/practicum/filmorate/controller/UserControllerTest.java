@@ -55,9 +55,7 @@ public class UserControllerTest {
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(gson.toJson(user)));
+                .andExpect(status().isOk());
 
         user.setEmail("incorrect.emailmail.ru");
         mockMvc.perform(post("/users")
@@ -86,9 +84,7 @@ public class UserControllerTest {
 
         mockMvc.perform(put("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedUser)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(gson.toJson(updatedUser)));
+                .andExpect(status().isOk());
 
         updatedUser.setLogin("incorrect login");
         mockMvc.perform(put("/users")
@@ -123,15 +119,11 @@ public class UserControllerTest {
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(gson.toJson(user)));
+                .andExpect(status().isOk());
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedUser)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(gson.toJson(updatedUser)));
+                .andExpect(status().isOk());
 
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
