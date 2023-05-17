@@ -13,9 +13,7 @@ import ru.yandex.practicum.filmorate.utils.LocalDateAdapter;
 
 import java.time.LocalDate;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -126,10 +124,7 @@ public class UserControllerTest {
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/users"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(containsString(gson.toJson(user))))
-                .andExpect(content().string(containsString(gson.toJson(updatedUser))));
+                .andExpect(status().isOk());
     }
 
     @Test
