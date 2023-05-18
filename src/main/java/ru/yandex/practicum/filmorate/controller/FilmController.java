@@ -16,10 +16,14 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmController {
-    @Autowired
     private FilmService filmService;
-    @Autowired
     private FilmStorage filmStorage;
+
+    @Autowired
+    public FilmController(FilmStorage filmStorage, FilmService filmService) {
+        this.filmService = filmService;
+        this.filmStorage = filmStorage;
+    }
 
     @GetMapping
     public List<Film> getAllFilms() {
