@@ -79,4 +79,20 @@ public class UserService {
         }
         return commonFriends;
     }
+
+    public List<User> getAllUsers() {
+        return userStorage.getAllUsers();
+    }
+
+    public User getUserById(Long userId) {
+        return userStorage.getUserById(userId);
+    }
+
+    public User createUser(User user) {
+        return userStorage.createUser(user);
+    }
+
+    public User updateUser(User user) {
+        return userStorage.updateUser(user);
+    }
 }

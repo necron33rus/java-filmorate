@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -16,26 +15,19 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class UserController {
-    private UserService userService;
-    private UserStorage userStorage;
-
     @Autowired
-    public UserController(UserStorage userStorage, UserService userService) {
-        this.userStorage = userStorage;
-        this.userService = userService;
-    }
-
+    private UserService userService;
 
     @GetMapping
     public List<User> getAllUsers() {
         log.info("UserController: Получен GET запрос к эндпоинту /users");
-        return userStorage.getAllUsers();
+        return userService.getAllUsers();
     }
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Long id) {
         log.info("UserController: Получен GET запрос к эндпоинту /users/{}", id);
-        return userStorage.getUserById(id);
+        return userService.getUserById(id);
     }
 
     @GetMapping("/{id}/friends")
@@ -65,14 +57,14 @@ public class UserController {
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
         log.info("UserController: Получен POST запрос к эндпоинту /users. Тело запроса: {}", user);
-        userStorage.createUser(user);
+        userService.createUser(user);
         return user;
     }
 
     @PutMapping
     public User updateOrCreateUser(@Valid @RequestBody User user) {
         log.info("UserController: Получен PUT запрос к эндпоинту /users. Тело запроса: {}", user);
-        userStorage.updateUser(user);
+        userService.updateUser(user);
         return user;
     }
 }

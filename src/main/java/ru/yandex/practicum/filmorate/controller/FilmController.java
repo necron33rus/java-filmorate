@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -16,25 +15,19 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmController {
-    private FilmService filmService;
-    private FilmStorage filmStorage;
-
     @Autowired
-    public FilmController(FilmStorage filmStorage, FilmService filmService) {
-        this.filmService = filmService;
-        this.filmStorage = filmStorage;
-    }
+    private FilmService filmService;
 
     @GetMapping
     public List<Film> getAllFilms() {
         log.info("FilmController: Получен GET запрос к эндпоинту /film ");
-        return filmStorage.getFilms();
+        return filmService.getFilms();
     }
 
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable Long id) {
         log.info("FilmController: Получен GET запрос к эндпоинту /film/{}", id);
-        return filmStorage.getFilmById(id);
+        return filmService.getFilmById(id);
     }
 
     @GetMapping("/popular")
@@ -46,14 +39,14 @@ public class FilmController {
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
         log.info("FilmController: Получен POST запрос к эндпоинту /film. Тело запроса: {}", film);
-        filmStorage.createFilm(film);
+        filmService.createFilm(film);
         return film;
     }
 
     @PutMapping
     public Film updateOrCreateFilm(@Valid @RequestBody Film film) {
         log.info("FilmController: Получен PUT запрос к эндпоинту /film. Тело запроса: {}", film);
-        filmStorage.updateFilm(film);
+        filmService.updateFilm(film);
         return film;
     }
 

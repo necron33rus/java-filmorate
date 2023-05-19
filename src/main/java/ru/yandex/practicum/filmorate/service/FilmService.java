@@ -69,4 +69,20 @@ public class FilmService {
                     .collect(Collectors.toList());
         }
     }
+
+    public Film createFilm(Film film) {
+        return filmStorage.createFilm(film);
+    }
+
+    public Film updateFilm(Film film) {
+        return filmStorage.updateFilm(film);
+    }
+
+    public Film getFilmById(Long filmId) {
+        return filmStorage.getFilmById(filmId);
+    }
+
+    public List<Film> getFilms() {
+        return filmStorage.getFilms();
+    }
 }
