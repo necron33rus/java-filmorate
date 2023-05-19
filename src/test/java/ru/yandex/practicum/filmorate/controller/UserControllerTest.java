@@ -42,15 +42,38 @@ public class UserControllerTest {
         anotherUser = new User();
     }
 
-    @Test
-    @Order(1)
-    public void shouldCreateValidUsers() throws Exception {
+    @BeforeEach
+    public void beforeEach() {
         user.setId(1L);
         user.setName("Correct Name");
         user.setBirthday(LocalDate.of(2002, 1, 1));
         user.setLogin("correctlogin");
         user.setEmail("correct.email@mail.ru");
 
+        updatedUser.setId(1L);
+        updatedUser.setName("Correct Name_updated");
+        updatedUser.setBirthday(LocalDate.of(2002, 1, 1));
+        updatedUser.setLogin("correctlogin");
+        updatedUser.setEmail("correct.email@mail.ru");
+
+        friend.setName("friend");
+        friend.setBirthday(LocalDate.of(2002, 1, 1));
+        friend.setLogin("friend");
+        friend.setEmail("friend.email@mail.ru");
+
+        anotherUser.setName("Correct Name2");
+        anotherUser.setBirthday(LocalDate.of(2002, 1, 1));
+        anotherUser.setLogin("correctlogin2");
+        anotherUser.setEmail("correct.email2@mail.ru");
+
+        anotherFriend.setName("friend2");
+        anotherFriend.setBirthday(LocalDate.of(2002, 1, 1));
+        anotherFriend.setLogin("friend2");
+        anotherFriend.setEmail("friend2.email@mail.ru");
+    }
+
+    @Test
+    public void shouldCreateValidUsers() throws Exception {
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
                 .andExpect(status().isOk());
@@ -72,13 +95,10 @@ public class UserControllerTest {
     }
 
     @Test
-    @Order(2)
     public void shouldUpdateValidUser() throws Exception {
-        updatedUser.setId(1L);
-        updatedUser.setName("Correct Name_updated");
-        updatedUser.setBirthday(LocalDate.of(2002, 1, 1));
-        updatedUser.setLogin("correctlogin");
-        updatedUser.setEmail("correct.email@mail.ru");
+        mockMvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
+                .andExpect(status().isOk());
 
         mockMvc.perform(put("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedUser)))
@@ -101,20 +121,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @Order(3)
     public void shouldGetAllUsers() throws Exception {
-        user.setId(2L);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-
-        updatedUser.setId(3L);
-        updatedUser.setName("Correct Name_updated");
-        updatedUser.setBirthday(LocalDate.of(2002, 1, 1));
-        updatedUser.setLogin("correctLogin");
-        updatedUser.setEmail("correct.email@mail.ru");
-
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
                 .andExpect(status().isOk());
@@ -128,18 +135,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @Order(4)
     public void shouldAddFriend() throws Exception {
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-
-        friend.setName("friend");
-        friend.setBirthday(LocalDate.of(2002, 1, 1));
-        friend.setLogin("friend");
-        friend.setEmail("friend.email@mail.ru");
-
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
                 .andExpect(status().isOk());
@@ -153,18 +149,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @Order(5)
     public void shouldDeleteFriend() throws Exception {
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-
-        friend.setName("friend");
-        friend.setBirthday(LocalDate.of(2002, 1, 1));
-        friend.setLogin("friend");
-        friend.setEmail("friend.email@mail.ru");
-
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
                 .andExpect(status().isOk());
@@ -181,13 +166,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @Order(6)
-    public void shouldGetuserById() throws Exception {
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-
+    public void shouldGetUserById() throws Exception {
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
                 .andExpect(status().isOk());
@@ -197,17 +176,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @Order(7)
     public void shouldGetAllFriendsByUserId() throws Exception {
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-
-        friend.setName("friend");
-        friend.setBirthday(LocalDate.of(2002, 1, 1));
-        friend.setLogin("friend");
-        friend.setEmail("friend.email@mail.ru");
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
@@ -225,28 +194,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @Order(8)
     public void shouldGetCommonFriends() throws Exception {
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-
-        anotherUser.setName("Correct Name2");
-        anotherUser.setBirthday(LocalDate.of(2002, 1, 1));
-        anotherUser.setLogin("correctlogin2");
-        anotherUser.setEmail("correct.email2@mail.ru");
-
-        friend.setName("friend");
-        friend.setBirthday(LocalDate.of(2002, 1, 1));
-        friend.setLogin("friend");
-        friend.setEmail("friend.email@mail.ru");
-
-        anotherFriend.setName("friend2");
-        anotherFriend.setBirthday(LocalDate.of(2002, 1, 1));
-        anotherFriend.setLogin("friend2");
-        anotherFriend.setEmail("friend2.email@mail.ru");
-
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
                 .andExpect(status().isOk());

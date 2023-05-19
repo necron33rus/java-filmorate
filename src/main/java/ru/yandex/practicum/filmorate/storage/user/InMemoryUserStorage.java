@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -60,7 +61,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     private void validate(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
+        if (StringUtils.isBlank(user.getName())) {
             user.setName(user.getLogin());
             log.debug("InMemoryUserStorage: Поле name не задано. Значение {} заменено на {} из поля login", user.getName(),
                     user.getLogin());

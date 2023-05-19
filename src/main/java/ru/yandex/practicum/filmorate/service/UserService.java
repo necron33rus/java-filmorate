@@ -52,19 +52,14 @@ public class UserService {
 
     public List<User> getFriends(Long userId) {
         User user = userStorage.getUserById(userId);
-        if (user == null) {
-            throw new NotFoundException("UserService: Пользователь с идентификатором " + userId + " не найден");
-        } else {
+        if (user != null) {
             List<User> friends = new ArrayList<>();
-            if (user.getFriends() != null) {
-                for (Long id : user.getFriends()) {
-                    friends.add(userStorage.getUserById(id));
-                }
-                return friends;
-            } else {
-                throw new NotFoundException("UserService: У пользователя с идентификатором " + userId +
-                        " не найдены друзья");
+            for (Long id : user.getFriends()) {
+                friends.add(userStorage.getUserById(id));
             }
+            return friends;
+        } else {
+            throw new NotFoundException("UserService: Пользователь с идентификатором " + userId + " не найден");
         }
     }
 

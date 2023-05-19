@@ -45,15 +45,46 @@ public class FilmControllerTest {
         updatedFilm = new Film();
     }
 
-    @Test
-    @Order(1)
-    public void shouldCreateValidFilm() throws Exception {
+    @BeforeEach
+    public void beforeEach() {
         film.setId(1L);
         film.setName("Correct Name");
         film.setDescription("Correct description");
         film.setReleaseDate(LocalDate.of(1895, 12, 29));
         film.setDuration(100);
 
+        updatedFilm.setId(1L);
+        updatedFilm.setName("Correct Name_updated");
+        updatedFilm.setDescription("Correct description");
+        updatedFilm.setReleaseDate(LocalDate.of(1895, 12, 29));
+        updatedFilm.setDuration(120);
+
+        user.setId(1L);
+        user.setName("Correct Name");
+        user.setBirthday(LocalDate.of(2002, 1, 1));
+        user.setLogin("correctlogin");
+        user.setEmail("correct.email@mail.ru");
+
+        secondUser.setId(667L);
+        secondUser.setName("Correct Name");
+        secondUser.setBirthday(LocalDate.of(2002, 1, 1));
+        secondUser.setLogin("correctlogin");
+        secondUser.setEmail("correct.email@mail.ru");
+        thirdUser.setId(668L);
+        thirdUser.setName("Correct Name");
+        thirdUser.setBirthday(LocalDate.of(2002, 1, 1));
+        thirdUser.setLogin("correctlogin");
+        thirdUser.setEmail("correct.email@mail.ru");
+
+        secondFilm.setId(999L);
+        secondFilm.setName("Correct Name");
+        secondFilm.setDescription("Correct description.");
+        secondFilm.setReleaseDate(LocalDate.of(1995, 5, 26));
+        secondFilm.setDuration(100);
+    }
+
+    @Test
+    public void shouldCreateValidFilm() throws Exception {
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(film)))
                 .andExpect(status().isOk());
@@ -75,13 +106,10 @@ public class FilmControllerTest {
     }
 
     @Test
-    @Order(2)
     public void shouldUpdateValidFilm() throws Exception {
-        updatedFilm.setId(1L);
-        updatedFilm.setName("Correct Name_updated");
-        updatedFilm.setDescription("Correct description");
-        updatedFilm.setReleaseDate(LocalDate.of(1895, 12, 29));
-        updatedFilm.setDuration(120);
+        mockMvc.perform(post("/films")
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(film)))
+                .andExpect(status().isOk());
 
         mockMvc.perform(put("/films")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedFilm)))
@@ -104,20 +132,7 @@ public class FilmControllerTest {
     }
 
     @Test
-    @Order(3)
     public void shouldGetAllFilms() throws Exception {
-        film.setId(2L);
-        film.setName("Correct Name");
-        film.setDescription("Correct description");
-        film.setReleaseDate(LocalDate.of(1895, 12, 29));
-        film.setDuration(100);
-
-        updatedFilm.setId(3L);
-        updatedFilm.setName("Correct Name2");
-        updatedFilm.setDescription("Correct description2");
-        updatedFilm.setReleaseDate(LocalDate.of(2000, 12, 29));
-        updatedFilm.setDuration(120);
-
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(film)))
                 .andExpect(status().isOk());
@@ -131,14 +146,7 @@ public class FilmControllerTest {
     }
 
     @Test
-    @Order(4)
     public void shouldGetFilmById() throws Exception {
-        film.setId(1L);
-        film.setName("Correct Name");
-        film.setDescription("Correct description");
-        film.setReleaseDate(LocalDate.of(1895, 12, 29));
-        film.setDuration(100);
-
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(film)))
                 .andExpect(status().isOk());
@@ -148,20 +156,7 @@ public class FilmControllerTest {
     }
 
     @Test
-    @Order(5)
     public void shouldAddLike() throws Exception {
-        film.setId(1L);
-        film.setName("Correct Name");
-        film.setDescription("Correct description");
-        film.setReleaseDate(LocalDate.of(1895, 12, 29));
-        film.setDuration(100);
-
-        user.setId(1L);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
                 .andExpect(status().isOk());
@@ -175,20 +170,7 @@ public class FilmControllerTest {
     }
 
     @Test
-    @Order(6)
     public void shouldDeleteLike() throws Exception {
-        film.setId(1L);
-        film.setName("Correct Name");
-        film.setDescription("Correct description");
-        film.setReleaseDate(LocalDate.of(1895, 12, 29));
-        film.setDuration(100);
-
-        user.setId(1L);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
                 .andExpect(status().isOk());
@@ -205,35 +187,7 @@ public class FilmControllerTest {
     }
 
     @Test
-    @Order(7)
     public void shouldGetPopularFilm() throws Exception {
-        user.setId(666L);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-        secondUser.setId(667L);
-        secondUser.setName("Correct Name");
-        secondUser.setBirthday(LocalDate.of(2002, 1, 1));
-        secondUser.setLogin("correctlogin");
-        secondUser.setEmail("correct.email@mail.ru");
-        thirdUser.setId(668L);
-        thirdUser.setName("Correct Name");
-        thirdUser.setBirthday(LocalDate.of(2002, 1, 1));
-        thirdUser.setLogin("correctlogin");
-        thirdUser.setEmail("correct.email@mail.ru");
-
-        film.setId(999L);
-        film.setName("Correct Name");
-        film.setDescription("Correct description.");
-        film.setReleaseDate(LocalDate.of(1995, 5, 26));
-        film.setDuration(100);
-        secondFilm.setId(999L);
-        secondFilm.setName("Correct Name");
-        secondFilm.setDescription("Correct description.");
-        secondFilm.setReleaseDate(LocalDate.of(1995, 5, 26));
-        secondFilm.setDuration(100);
-
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
                 .andExpect(status().isOk());
