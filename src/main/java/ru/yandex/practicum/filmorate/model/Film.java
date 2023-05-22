@@ -23,7 +23,7 @@ public class Film {
     @NotBlank(message = "Название должно содержать символы помимо пробела")
     private String name;
 
-    @Size(max = 200, message = "Длина описания не должна быть больше 250 символов")
+    @Size(max = 200, message = "Длина описания не должна быть больше 200 символов")
     private String description;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
