@@ -1,173 +1,217 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.junit.jupiter.api.BeforeAll;
+import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.core.AutoConfigureCache;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.assertj.core.api.AssertionsForClassTypes;
+
+import javax.transaction.Transactional;
+
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+
 
 @SpringBootTest
+@AutoConfigureTestDatabase
+@AutoConfigureCache
+@Transactional
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class FilmServiceTest {
-    private static FilmService filmService;
-    private static final FilmStorage filmStorage = new InMemoryFilmStorage();
-    private static final UserStorage userStorage = new InMemoryUserStorage();
-    private static Film film;
+    private  final FilmService filmService;
+    private  final FilmDbStorage filmStorage;
+    private  final UserDbStorage userStorage;
+    private static Film firstFilm;
     private static Film secondFilm;
-    private static User user;
+    private static Film thirdFilm;
+    private static User firstUser;
     private static User secondUser;
     private static User thirdUser;
 
-    @BeforeAll
-    public static void beforeAll() {
-        film = new Film();
-        secondFilm = new Film();
-        user = new User();
-        secondUser = new User();
-        thirdUser = new User();
-        filmService = new FilmService(filmStorage, userStorage);
+    @BeforeEach
+    public void beforeEach() {
+        firstUser = User.builder()
+                .name("first")
+                .login("First")
+                .email("1@ya.ru")
+                .birthday(LocalDate.of(1980, 12, 23))
+                .build();
+
+        secondUser = User.builder()
+                .name("Second")
+                .login("Second")
+                .email("2@ya.ru")
+                .birthday(LocalDate.of(1980, 12, 24))
+                .build();
+
+        thirdUser = User.builder()
+                .name("Third")
+                .login("Third")
+                .email("3@ya.ru")
+                .birthday(LocalDate.of(1980, 12, 25))
+                .build();
+
+        firstFilm = Film.builder()
+                .name("film 1")
+                .description("description 1")
+                .releaseDate(LocalDate.of(1961, 10, 5))
+                .duration(114)
+                .build();
+        firstFilm.setMpa(new Rating(1, "G", "Фильм демонстрируется без ограничений"));
+        firstFilm.setLikes(new HashSet<>());
+        firstFilm.setGenres(new HashSet<>(Arrays.asList(new Genre(2, "Драма"),
+                new Genre(1, "Комедия"))));
+
+        secondFilm = Film.builder()
+                .name("film 2")
+                .description("description 2")
+                .releaseDate(LocalDate.of(2009, 12, 10))
+                .duration(162)
+                .build();
+        secondFilm.setMpa(new Rating(3, "PG-13", "Просмотр не желателен детям до 13 лет"));
+        secondFilm.setLikes(new HashSet<>());
+        secondFilm.setGenres(new HashSet<>(List.of(new Genre(6, "Боевик"))));
+
+        thirdFilm = Film.builder()
+                .name("film 3")
+                .description("description 3")
+                .releaseDate(LocalDate.of(1975, 11, 19))
+                .duration(133)
+                .build();
+        thirdFilm.setMpa(new Rating(4, "R", "Лица, не достигшие 17-летнего возраста, допускаются на фильм только в сопровождении одного из родителей, либо законного представителя"));
+        thirdFilm.setLikes(new HashSet<>());
+        thirdFilm.setGenres(new HashSet<>(List.of(new Genre(2, "Драма"))));
     }
 
     @Test
-    void shouldAddWhenAddValidFilmData() {
-        film.setId(666L);
-        film.setName("Correct Name");
-        film.setDescription("Correct description.");
-        film.setReleaseDate(LocalDate.of(1995, 5, 26));
-        film.setDuration(100);
-        filmStorage.createFilm(film);
-        assertEquals(1, film.getId());
+    public void testCreateFilmAndGetFilmById() {
+        firstFilm = filmStorage.createFilm(firstFilm);
+        Optional<Film> filmOptional = Optional.ofNullable(filmStorage.getFilmById(firstFilm.getId()));
+        assertThat(filmOptional)
+                .hasValueSatisfying(film -> AssertionsForClassTypes.assertThat(film)
+                        .hasFieldOrPropertyWithValue("id", firstFilm.getId())
+                        .hasFieldOrPropertyWithValue("name", "film 1")
+                );
     }
 
     @Test
-    void shouldAddWhenAddValidFilmReleaseDateBoundary() {
-        film.setId(333L);
-        film.setName("Correct Name");
-        film.setDescription("Correct description.");
-        film.setReleaseDate(LocalDate.of(1895, 12, 28));
-        film.setDuration(100);
-        filmStorage.createFilm(film);
-        assertEquals(2, film.getId());
+    public void testGetFilms() {
+        firstFilm = filmStorage.createFilm(firstFilm);
+        secondFilm = filmStorage.createFilm(secondFilm);
+        thirdFilm = filmStorage.createFilm(thirdFilm);
+        List<Film> listFilms = filmStorage.getFilms();
+        assertThat(listFilms).contains(firstFilm);
+        assertThat(listFilms).contains(secondFilm);
+        assertThat(listFilms).contains(thirdFilm);
     }
 
     @Test
-    void shouldAddWhenAddFilmDescriptionBoundary() {
-        film.setId(444L);
-        film.setName("Correct Name");
-        film.setDescription("Correct description. Correct description. Correct description. Correct description. " +
-                "Correct description. Correct description. Correct description. Correct description. " +
-                "Correct description. Correct des");
-        film.setReleaseDate(LocalDate.of(1995, 5, 26));
-        film.setDuration(100);
-        filmStorage.createFilm(film);
-        assertNotEquals(0, film.getId());
+    public void testUpdateFilm() {
+        firstFilm = filmStorage.createFilm(firstFilm);
+        Film updateFilm = Film.builder()
+                .id(firstFilm.getId())
+                .name("UpdateName")
+                .description("UpdateDescription")
+                .releaseDate(LocalDate.of(1975, 11, 19))
+                .duration(133)
+                .build();
+        updateFilm.setMpa(new Rating(1, "G","Фильм демонстрируется без ограничений"));
+        Optional<Film> testUpdateFilm = Optional.ofNullable(filmStorage.updateFilm(updateFilm));
+        assertThat(testUpdateFilm)
+                .hasValueSatisfying(film ->
+                        assertThat(film)
+                                .hasFieldOrPropertyWithValue("name", "UpdateName")
+                                .hasFieldOrPropertyWithValue("description", "UpdateDescription")
+                );
     }
 
     @Test
-    void shouldThrowExceptionWhenUpdateFailedFilmId() {
-        film.setId(999L);
-        film.setName("Correct Name");
-        film.setDescription("Correct description.");
-        film.setReleaseDate(LocalDate.of(1995, 5, 26));
-        film.setDuration(100);
-        NotFoundException ex = assertThrows(NotFoundException.class, () -> filmStorage.updateFilm(film));
-        assertEquals("InMemoryFilmStorage: Объект с идентификатором 999 не найден", ex.getMessage());
+    public void deleteFilm() {
+        firstFilm = filmStorage.createFilm(firstFilm);
+        secondFilm = filmStorage.createFilm(secondFilm);
+        filmStorage.deleteFilm(firstFilm.getId());
+        List<Film> listFilms = filmStorage.getFilms();
+        assertThat(listFilms).hasSize(1);
+        assertThat(Optional.of(listFilms.get(0)))
+                .hasValueSatisfying(film ->
+                        AssertionsForClassTypes.assertThat(film)
+                                .hasFieldOrPropertyWithValue("name", "film 2"));
     }
 
     @Test
-    void shouldAddLike() {
-        user.setId(666L);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-        userStorage.createUser(user);
-
-        film.setId(999L);
-        film.setName("Correct Name");
-        film.setDescription("Correct description.");
-        film.setReleaseDate(LocalDate.of(1995, 5, 26));
-        film.setDuration(100);
-        filmStorage.createFilm(film);
-
-        filmService.addLike(film.getId(), user.getId());
-
-        assertEquals(1, film.getLikes().size());
+    public void testAddLike() {
+        firstUser = userStorage.createUser(firstUser);
+        firstFilm = filmStorage.createFilm(firstFilm);
+        filmService.addLike(firstFilm.getId(), firstUser.getId());
+        firstFilm = filmStorage.getFilmById(firstFilm.getId());
+        assertThat(firstFilm.getLikes()).hasSize(1);
+        assertThat(firstFilm.getLikes()).contains(firstUser.getId());
     }
 
     @Test
-    void shouldDeleteLike() {
-        user.setId(666L);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-        userStorage.createUser(user);
-
-        film.setId(999L);
-        film.setName("Correct Name");
-        film.setDescription("Correct description.");
-        film.setReleaseDate(LocalDate.of(1995, 5, 26));
-        film.setDuration(100);
-        filmStorage.createFilm(film);
-
-        filmService.addLike(film.getId(), user.getId());
-        assertEquals(2, film.getLikes().size());
-        filmService.deleteLike(film.getId(), user.getId());
-        assertEquals(1, film.getLikes().size());
+    public void testDeleteLike() {
+        firstUser = userStorage.createUser(firstUser);
+        secondUser = userStorage.createUser(secondUser);
+        firstFilm = filmStorage.createFilm(firstFilm);
+        filmService.addLike(firstFilm.getId(), firstUser.getId());
+        filmService.addLike(firstFilm.getId(), secondUser.getId());
+        filmService.deleteLike(firstFilm.getId(), firstUser.getId());
+        firstFilm = filmStorage.getFilmById(firstFilm.getId());
+        assertThat(firstFilm.getLikes()).hasSize(1);
+        assertThat(firstFilm.getLikes()).contains(secondUser.getId());
     }
 
     @Test
-    void shouldGetPopularFilms() {
-        user.setId(666L);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-        secondUser.setId(667L);
-        secondUser.setName("Correct Name");
-        secondUser.setBirthday(LocalDate.of(2002, 1, 1));
-        secondUser.setLogin("correctlogin");
-        secondUser.setEmail("correct.email@mail.ru");
-        thirdUser.setId(668L);
-        thirdUser.setName("Correct Name");
-        thirdUser.setBirthday(LocalDate.of(2002, 1, 1));
-        thirdUser.setLogin("correctlogin");
-        thirdUser.setEmail("correct.email@mail.ru");
+    public void testGetPopularFilms() {
 
-        userStorage.createUser(user);
-        userStorage.createUser(secondUser);
-        userStorage.createUser(thirdUser);
+        firstUser = userStorage.createUser(firstUser);
+        secondUser = userStorage.createUser(secondUser);
+        thirdUser = userStorage.createUser(thirdUser);
 
-        film.setId(999L);
-        film.setName("Correct Name");
-        film.setDescription("Correct description.");
-        film.setReleaseDate(LocalDate.of(1995, 5, 26));
-        film.setDuration(100);
-        secondFilm.setId(999L);
-        secondFilm.setName("Correct Name");
-        secondFilm.setDescription("Correct description.");
-        secondFilm.setReleaseDate(LocalDate.of(1995, 5, 26));
-        secondFilm.setDuration(100);
+        firstFilm = filmStorage.createFilm(firstFilm);
+        filmService.addLike(firstFilm.getId(), firstUser.getId());
 
-        filmStorage.createFilm(film);
-        filmStorage.createFilm(secondFilm);
-
-        filmService.addLike(film.getId(), user.getId());
-        filmService.addLike(film.getId(), secondUser.getId());
-        filmService.addLike(film.getId(), thirdUser.getId());
-        filmService.addLike(secondFilm.getId(), user.getId());
+        secondFilm = filmStorage.createFilm(secondFilm);
+        filmService.addLike(secondFilm.getId(), firstUser.getId());
         filmService.addLike(secondFilm.getId(), secondUser.getId());
+        filmService.addLike(secondFilm.getId(), thirdUser.getId());
 
-        filmService.getPopularFilms(10);
-        assertEquals(7, filmService.getPopularFilms(10).size());
+        thirdFilm = filmStorage.createFilm(thirdFilm);
+        filmService.addLike(thirdFilm.getId(), firstUser.getId());
+        filmService.addLike(thirdFilm.getId(), secondUser.getId());
+
+        List<Film> listFilms = filmService.getPopularFilms(5);
+
+        assertThat(listFilms).hasSize(3);
+
+        assertThat(Optional.of(listFilms.get(0)))
+                .hasValueSatisfying(film ->
+                        AssertionsForClassTypes.assertThat(film)
+                                .hasFieldOrPropertyWithValue("name", "film 2"));
+
+        assertThat(Optional.of(listFilms.get(1)))
+                .hasValueSatisfying(film ->
+                        AssertionsForClassTypes.assertThat(film)
+                                .hasFieldOrPropertyWithValue("name", "film 3"));
+
+        assertThat(Optional.of(listFilms.get(2)))
+                .hasValueSatisfying(film ->
+                        AssertionsForClassTypes.assertThat(film)
+                                .hasFieldOrPropertyWithValue("name", "film 1"));
     }
 }

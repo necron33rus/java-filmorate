@@ -3,15 +3,17 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import javax.validation.ValidationException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -19,11 +21,15 @@ import java.util.stream.Collectors;
 public class FilmService {
     private FilmStorage filmStorage;
     private UserStorage userStorage;
+    private LikeStorage likeStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
+                       @Qualifier("userDbStorage") UserStorage userStorage,
+                       LikeStorage likeStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.likeStorage = likeStorage;
     }
 
     public void addLike(Long filmId, Long userId) {
@@ -34,7 +40,7 @@ public class FilmService {
         } else if (user == null) {
             throw new NotFoundException("FilmService: Пользователь с идентификатором " + userId + " не найден");
         } else {
-            film.getLikes().add(userId);
+            likeStorage.addLike(filmId, userId);
             log.debug("FilmService: К Фильму с  идентификатором {} Пользователем с идентификатором {} добавлен лайк", filmId, userId);
         }
     }
@@ -47,7 +53,7 @@ public class FilmService {
         } else if (user == null) {
             throw new NotFoundException("FilmService: Пользователь с идентификатором " + userId + " не найден");
         } else if (film.getLikes().contains(userId)) {
-            film.getLikes().remove(userId);
+            likeStorage.deleteLike(filmId, userId);
             log.debug("FilmService: К объекту 'Фильм' с  идентификатором {} пользователем с " +
                     "идентификатором {} добавлен лайк", filmId, userId);
         } else {
@@ -57,17 +63,10 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(int count) {
-        if (count == 0) {
-            return filmStorage.getFilms().stream()
-                    .sorted((o1, o2) -> o2.getLikes().size() - o1.getLikes().size())
-                    .limit(10)
-                    .collect(Collectors.toList());
-        } else {
-            return filmStorage.getFilms().stream()
-                    .sorted((o1, o2) -> o2.getLikes().size() - o1.getLikes().size())
-                    .limit(count)
-                    .collect(Collectors.toList());
+        if (count < 1) {
+            new ValidationException("Количество фильмов для вывода должно быть не меньше 1");
         }
+        return likeStorage.getPopular(count);
     }
 
     public Film createFilm(Film film) {

@@ -1,178 +1,146 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.junit.jupiter.api.BeforeAll;
+import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.core.AutoConfigureCache;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @SpringBootTest
+@AutoConfigureTestDatabase
+@AutoConfigureCache
+@Transactional
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserServiceTest {
-    private static UserService userService;
-    private static final UserStorage userStorage = new InMemoryUserStorage();
-    private static User user;
-    private static User friend;
-    private static User otherFriend;
+    private final UserService userService;
+    private final UserDbStorage userStorage;
+    private static User firstUser;
+    private static User secondUser;
+    private static User thirdUser;
 
-    @BeforeAll
-    public static void beforeAll() {
-        user = new User();
-        friend = new User();
-        otherFriend = new User();
-        userService = new UserService(userStorage);
+    @BeforeEach
+    public void beforeEach() {
+        firstUser = User.builder()
+                .name("First")
+                .login("First")
+                .email("1@ya.ru")
+                .birthday(LocalDate.of(1980, 12, 23))
+                .build();
+
+        secondUser = User.builder()
+                .name("Second")
+                .login("Second")
+                .email("2@ya.ru")
+                .birthday(LocalDate.of(1980, 12, 24))
+                .build();
+
+        thirdUser = User.builder()
+                .name("Third")
+                .login("Third")
+                .email("3@ya.ru")
+                .birthday(LocalDate.of(1980, 12, 25))
+                .build();
     }
 
     @Test
-    void shouldAddUserWhenValidUserData() {
-        user.setId(666L);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-        userStorage.createUser(user);
-        assertTrue(userStorage.getAllUsers().contains(user));
+    public void testCreateUserAndGetUserById() {
+        firstUser = userStorage.createUser(firstUser);
+        Optional<User> userOptional = Optional.ofNullable(userStorage.getUserById(firstUser.getId()));
+        assertThat(userOptional)
+                .hasValueSatisfying(user ->
+                        assertThat(user)
+                                .hasFieldOrPropertyWithValue("id", firstUser.getId())
+                                .hasFieldOrPropertyWithValue("name", "First"));
     }
 
     @Test
-    void shouldSetUserNameWhenEmptyUserName() {
-        user.setId(555L);
-        user.setName("");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-        userStorage.createUser(user);
-        assertNotEquals(0, user.getId());
-        assertTrue(userStorage.getAllUsers().contains(user));
-        assertEquals(user.getLogin(), user.getName());
+    public void testGetUsers() {
+        firstUser = userStorage.createUser(firstUser);
+        secondUser = userStorage.createUser(secondUser);
+        List<User> listUsers = userStorage.getAllUsers();
+        assertThat(listUsers).contains(firstUser);
+        assertThat(listUsers).contains(secondUser);
     }
 
     @Test
-    void shouldSetUserNameWhenBlankUserName() {
-        user.setId(333L);
-        user.setName("   ");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-        userStorage.createUser(user);
-        assertNotEquals(0, user.getId());
-        assertTrue(userStorage.getAllUsers().contains(user));
-        assertEquals(user.getLogin(), user.getName());
+    public void testUpdateUser() {
+        firstUser = userStorage.createUser(firstUser);
+        User updateUser = User.builder()
+                .id(firstUser.getId())
+                .name("UpdateFirst")
+                .login("First")
+                .email("1@ya.ru")
+                .birthday(LocalDate.of(1980, 12, 23))
+                .build();
+        Optional<User> testUpdateUser = Optional.ofNullable(userStorage.updateUser(updateUser));
+        assertThat(testUpdateUser)
+                .hasValueSatisfying(user -> assertThat(user)
+                        .hasFieldOrPropertyWithValue("name", "UpdateFirst")
+                );
     }
 
     @Test
-    void shouldThrowExceptionWhenUpdateFailedUserId() {
-        user.setId(99L);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-        NotFoundException ex = assertThrows(NotFoundException.class, () -> userStorage.updateUser(user));
-        assertEquals("InMemoryUserStorage: Объект с идентификатором 99 не найден", ex.getMessage());
+    public void deleteUser() {
+        firstUser = userStorage.createUser(firstUser);
+        userStorage.deleteUser(firstUser.getId());
+        List<User> listUsers = userStorage.getAllUsers();
+        assertThat(listUsers).hasSize(0);
     }
 
     @Test
-    void shouldAddFriend() {
-        user.setId(1L);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-
-        friend.setId(2L);
-        friend.setName("Correct Name");
-        friend.setBirthday(LocalDate.of(2002, 1, 12));
-        friend.setLogin("correctlogin1");
-        friend.setEmail("correct.email1@mail.ru");
-
-        userStorage.createUser(user);
-        userStorage.createUser(friend);
-        userService.addFriend(user.getId(), friend.getId());
-
-        assertEquals(1, user.getFriends().size());
-        assertTrue(user.getFriends().contains(friend.getId()));
+    public void testAddFriend() {
+        firstUser = userStorage.createUser(firstUser);
+        secondUser = userStorage.createUser(secondUser);
+        userService.addFriend(firstUser.getId(), secondUser.getId());
+        assertThat(userService.getFriends(firstUser.getId())).hasSize(1);
+        assertThat(userService.getFriends(firstUser.getId())).contains(secondUser);
     }
 
     @Test
-    void shouldAddCommonFriend() {
-        user.setId(1L);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-
-        friend.setId(2L);
-        friend.setName("Correct Name");
-        friend.setBirthday(LocalDate.of(2002, 1, 12));
-        friend.setLogin("correctlogin1");
-        friend.setEmail("correct.email1@mail.ru");
-
-        otherFriend.setId(3L);
-        otherFriend.setName("Correct Name");
-        otherFriend.setBirthday(LocalDate.of(2002, 1, 12));
-        otherFriend.setLogin("correctlogin1");
-        otherFriend.setEmail("correct.email1@mail.ru");
-
-        userStorage.createUser(user);
-        userStorage.createUser(friend);
-        userStorage.createUser(otherFriend);
-        userService.addFriend(user.getId(), friend.getId());
-        userService.addFriend(otherFriend.getId(), friend.getId());
-        userService.getCommonFriends(user.getId(), otherFriend.getId());
-
-        assertEquals(1, userService.getCommonFriends(user.getId(), otherFriend.getId()).size());
-        assertTrue(userService.getCommonFriends(user.getId(), otherFriend.getId()).contains(friend));
+    public void testDeleteFriend() {
+        firstUser = userStorage.createUser(firstUser);
+        secondUser = userStorage.createUser(secondUser);
+        thirdUser = userStorage.createUser(thirdUser);
+        userService.addFriend(firstUser.getId(), secondUser.getId());
+        userService.addFriend(firstUser.getId(), thirdUser.getId());
+        userService.deleteFriend(firstUser.getId(), secondUser.getId());
+        assertThat(userService.getFriends(firstUser.getId())).hasSize(1);
+        assertThat(userService.getFriends(firstUser.getId())).contains(thirdUser);
     }
 
     @Test
-    void shouldGetFriends() {
-        user.setId(1L);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-
-        friend.setId(2L);
-        friend.setName("Correct Name");
-        friend.setBirthday(LocalDate.of(2002, 1, 12));
-        friend.setLogin("correctlogin1");
-        friend.setEmail("correct.email1@mail.ru");
-
-        userStorage.createUser(user);
-        userStorage.createUser(friend);
-        userService.addFriend(user.getId(), friend.getId());
-
-        assertEquals(2, userService.getFriends(user.getId()).size());
-        assertTrue(userService.getFriends(user.getId()).contains(friend));
+    public void testGetFriends() {
+        firstUser = userStorage.createUser(firstUser);
+        secondUser = userStorage.createUser(secondUser);
+        thirdUser = userStorage.createUser(thirdUser);
+        userService.addFriend(firstUser.getId(), secondUser.getId());
+        userService.addFriend(firstUser.getId(), thirdUser.getId());
+        assertThat(userService.getFriends(firstUser.getId())).hasSize(2);
+        assertThat(userService.getFriends(firstUser.getId())).contains(secondUser, thirdUser);
     }
 
     @Test
-    void shouldDeleteFriend() {
-        user.setId(1L);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
-
-        friend.setId(2L);
-        friend.setName("Correct Name");
-        friend.setBirthday(LocalDate.of(2002, 1, 12));
-        friend.setLogin("correctlogin1");
-        friend.setEmail("correct.email1@mail.ru");
-
-        userStorage.createUser(user);
-        userStorage.createUser(friend);
-        userService.addFriend(user.getId(), friend.getId());
-
-        assertEquals(4, userService.getFriends(user.getId()).size());
-        assertTrue(userService.getFriends(user.getId()).contains(friend));
-
-        userService.deleteFriend(user.getId(), friend.getId());
-        assertEquals(3, userService.getFriends(user.getId()).size());
+    public void testGetCommonFriends() {
+        firstUser = userStorage.createUser(firstUser);
+        secondUser = userStorage.createUser(secondUser);
+        thirdUser = userStorage.createUser(thirdUser);
+        userService.addFriend(firstUser.getId(), secondUser.getId());
+        userService.addFriend(firstUser.getId(), thirdUser.getId());
+        userService.addFriend(secondUser.getId(), firstUser.getId());
+        userService.addFriend(secondUser.getId(), thirdUser.getId());
+        assertThat(userService.getCommonFriends(firstUser.getId(), secondUser.getId())).hasSize(1);
+        assertThat(userService.getCommonFriends(firstUser.getId(), secondUser.getId()))
+                .contains(thirdUser);
     }
 }

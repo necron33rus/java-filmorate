@@ -60,7 +60,11 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    private void validate(User user) {
+    @Override
+    public void deleteUser(Long userId) {
+    }
+
+    public void validate(User user) {
         if (StringUtils.isBlank(user.getName())) {
             user.setName(user.getLogin());
             log.debug("InMemoryUserStorage: Поле name не задано. Значение {} заменено на {} из поля login", user.getName(),
