@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.genre;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -21,7 +22,7 @@ public class GenreStorage {
     }
 
     public void addGenre(String name) {
-        if (name == null) {
+        if (StringUtils.isBlank(name)) {
             throw new ValidationException("GenreStorage: Передан пустой аргумент");
         }
         String sqlString = "INSERT INTO GENRES (NAME) VALUES (?)";
@@ -63,25 +64,7 @@ public class GenreStorage {
         return outputGenre;
     }
 
-    public void addFilmGenreReference(Film film) {
-        if (film == null) {
-            throw new ValidationException("GenreStorage: Передан пустой аргумент");
-        }
-        String sqlString = "INSERT INTO REF_FILMS_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?)";
-        if (film.getGenres() != null) {
-            for (Genre genre : film.getGenres()) {
-                jdbcTemplate.update(sqlString, film.getId(), genre.getId());
-            }
-        }
-    }
 
-    public void deleteFilmGenreReference(Film film) {
-        if (film == null) {
-            throw new ValidationException("GenreStorage: Передан пустой аргумент");
-        }
-        String sqlString = "DELETE FROM REF_FILMS_GENRES WHERE FILM_ID = ?";
-        jdbcTemplate.update(sqlString, film.getId());
-    }
 
     public List<Genre> getFilmGenres(Long filmId) {
         if (filmId == null) {

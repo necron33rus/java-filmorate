@@ -27,36 +27,32 @@ public class UserService {
     }
 
     public void addFriend(Long userId, Long friendId) {
-        if (Objects.equals(userId, friendId)) {
-            throw new ValidationException("UserService: Нельзя добавить в друзья самого себя");
-        }
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
-        if (user == null || friend == null) {
-            throw new NotFoundException("UserService: Пользователь с идентификатором " + userId + " не найден");
+        if (userStorage.isUserExist(userId) && userStorage.isUserExist(friendId)) {
+            if (!Objects.equals(userId, friendId)) {
+                friendsStorage.addFriendship(userId, friendId);
+                log.info("UserService: Пользователю с идентификатором {} отправил запрос на добавление в друзья " +
+                        "Пользователя с идентификатором {}", userId, friendId);
+            } else {
+                throw new ValidationException("UserService: Нельзя добавить в друзья самого себя");
+            }
         } else {
-            friendsStorage.addFriendship(userId, friendId);
-            log.info("UserService: Пользователю с идентификатором {} отправил запрос на добавление в друзья " +
-                    "Пользователя с идентификатором {}", userId, friendId);
+            throw new NotFoundException("UserService: Пользователь с идентификатором " + userId + " не найден");
         }
     }
 
     public void deleteFriend(Long userId, Long friendId) {
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
-        if (user == null || friend == null) {
-            throw new NotFoundException("UserService: Пользователь с идентификатором " + userId + " не найден");
-        } else {
+        if (userStorage.isUserExist(userId) && userStorage.isUserExist(friendId)) {
             friendsStorage.deleteFriendship(userId, friendId);
             log.info("UserService: У Пользователя с идентификатором {} из друзей удален " +
                     "Пользователь с идентификатором {}", userId, friendId);
+        } else {
+            throw new NotFoundException("UserService: Пользователь с идентификатором " + userId + " не найден");
         }
     }
 
     public List<User> getFriends(Long userId) {
         List<User> friends;
-        User user = userStorage.getUserById(userId);
-        if (user != null) {
+        if (userStorage.isUserExist(userId)) {
             friends = friendsStorage.getFriends(userId);
             return friends;
         } else {
@@ -65,10 +61,8 @@ public class UserService {
     }
 
     public List<User> getCommonFriends(Long userId, Long otherUserId) {
-        User user = userStorage.getUserById(userId);
-        User otherUser = userStorage.getUserById(otherUserId);
         Set<User> friendsIntersection = null;
-        if (user != null && otherUser != null) {
+        if (userStorage.isUserExist(userId) && userStorage.isUserExist(otherUserId)) {
             friendsIntersection = new HashSet<>(friendsStorage.getFriends(userId));
             friendsIntersection.retainAll(friendsStorage.getFriends(otherUserId));
         }
@@ -80,7 +74,12 @@ public class UserService {
     }
 
     public User getUserById(Long userId) {
-        return userStorage.getUserById(userId);
+        if (userStorage.isUserExist(userId)) {
+            return userStorage.getUserById(userId);
+        } else {
+            throw new NotFoundException("UserService: Пользователь с идентификатором " + userId + " не найден");
+        }
+
     }
 
     public User createUser(User user) {
@@ -88,6 +87,22 @@ public class UserService {
     }
 
     public User updateUser(User user) {
-        return userStorage.updateUser(user);
+        if (userStorage.isUserExist(user.getId())) {
+            return userStorage.updateUser(user);
+        } else {
+            throw new NotFoundException("UserService: Пользователь с идентификатором " + user.getId() + " не найден");
+        }
+    }
+
+    public void deleteUser(Long userId) {
+        if (userStorage.isUserExist(userId)) {
+            userStorage.deleteUser(userId);
+        } else {
+            throw new NotFoundException("UserService: Пользователь с идентификатором " + userId + " не найден");
+        }
+    }
+
+    public void deleteAllUsers() {
+        userStorage.deleteAllUsers();
     }
 }

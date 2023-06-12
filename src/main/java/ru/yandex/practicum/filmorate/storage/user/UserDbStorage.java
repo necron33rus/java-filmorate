@@ -39,9 +39,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User getUserById(Long userId) {
-        if (userId == null) {
-            throw new ValidationException("UserDbStorage: Передан пустой аргумент");
-        }
         User user;
         String sqlString = "SELECT * FROM USERS WHERE ID = ?";
         SqlRowSet rows = jdbcTemplate.queryForRowSet(sqlString, userId);
@@ -73,9 +70,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User updateUser(User user) {
-        if (user == null) {
-            throw new ValidationException("UserDbStorage: Передан пустой аргумент");
-        }
         validate(user);
         if (getUserById(user.getId()) != null) {
             String sqlString = "UPDATE USERS SET EMAIL = ?, LOGIN = ?, NAME = ?, BIRTHDAY = ? WHERE ID = ?";
@@ -94,13 +88,8 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void deleteUser(Long userId) {
-        if (userId == null) {
-            throw new ValidationException("UserDbStorage: Передан пустой аргумент");
-        }
         String sqlString = "DELETE FROM USERS WHERE ID = ?";
-        if (jdbcTemplate.update(sqlString, userId) == 0) {
-            throw new NotFoundException("UserDbStorage: Фильм с ID=" + userId + " не найден!");
-        }
+        jdbcTemplate.update(sqlString, userId);
         log.info("UserDbStorage: Пользователь с ID = {} успешно удален", userId);
     }
 
@@ -111,5 +100,20 @@ public class UserDbStorage implements UserStorage {
             log.debug("UserDbStorage: Поле name не задано. Значение {} заменено на {} из поля login", user.getName(),
                     user.getLogin());
         }
+    }
+
+    public boolean isUserExist(Long userId) {
+        if (getAllUsers().contains(getUserById(userId))) {
+            return true;
+        } else {
+            throw new ValidationException("Валидация: Пользователь с идентификатором " + userId + " не найден");
+        }
+    }
+
+    @Override
+    public void deleteAllUsers() {
+        String sqlString = "DELETE FROM USERS";
+        jdbcTemplate.update(sqlString);
+        log.info("UserDbStorage: Все пользователи успешно удалены");
     }
 }

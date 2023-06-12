@@ -16,4 +16,8 @@ public interface UserStorage {
     void deleteUser(Long userId);
 
     void validate(User user);
+
+    boolean isUserExist(Long userId);
+
+    void deleteAllUsers();
 }

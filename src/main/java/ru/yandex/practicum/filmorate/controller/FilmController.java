@@ -1,12 +1,11 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -14,27 +13,21 @@ import java.util.List;
 @RestController
 @RequestMapping("/films")
 @Slf4j
+@RequiredArgsConstructor
 public class FilmController {
-
-    private final FilmService filmService;
-    private final FilmStorage filmStorage;
-
     @Autowired
-    public FilmController(FilmService filmService, @Qualifier("filmDbStorage") FilmStorage filmStorage) {
-        this.filmService = filmService;
-        this.filmStorage = filmStorage;
-    }
+    private FilmService filmService;
 
     @GetMapping
     public List<Film> getAllFilms() {
         log.info("FilmController: Получен GET запрос к эндпоинту /films");
-        return filmStorage.getFilms();
+        return filmService.getFilms();
     }
 
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable Long id) {
         log.info("FilmController: Получен GET запрос к эндпоинту /films/{}", id);
-        return filmStorage.getFilmById(id);
+        return filmService.getFilmById(id);
     }
 
     @GetMapping("/popular")
@@ -46,13 +39,13 @@ public class FilmController {
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
         log.info("FilmController: Получен POST запрос к эндпоинту /films. Тело запроса: {}", film);
-        return filmStorage.createFilm(film);
+        return filmService.createFilm(film);
     }
 
     @PutMapping
     public Film updateOrCreateFilm(@Valid @RequestBody Film film) {
         log.info("FilmController: Получен PUT запрос к эндпоинту /films. Тело запроса: {}", film);
-        return filmStorage.updateFilm(film);
+        return filmService.updateFilm(film);
     }
 
     @PutMapping("/{id}/like/{userId}")
@@ -70,6 +63,13 @@ public class FilmController {
     @DeleteMapping("/{id}")
     public void deleteFilm(@PathVariable Long id) {
         log.info("FilmController: Получен DELETE запрос к эндпоинту /films/{}", id);
-        filmStorage.deleteFilm(id);
+        filmService.deleteFilm(id);
     }
+
+    @DeleteMapping()
+    public void deleteFilm() {
+        log.info("FilmController: Получен DELETE запрос к эндпоинту /films/");
+        filmService.deleteAllFilms();
+    }
+
 }

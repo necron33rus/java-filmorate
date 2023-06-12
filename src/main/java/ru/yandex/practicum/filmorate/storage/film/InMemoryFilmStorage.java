@@ -2,13 +2,16 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.MethodNotAllowedException;
 import ru.yandex.practicum.filmorate.exception.FilmValidationException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 @Slf4j
@@ -61,5 +64,21 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void deleteFilm(Long filmId) {
+        throw new UnsupportedOperationException("InMemoryFilmStorage: Метод не поддерживается");
+    }
+
+    @Override
+    public Set<Genre> getFilmGenres(Long filmId) {
+        throw new UnsupportedOperationException("InMemoryFilmStorage: Метод не поддерживается");
+    }
+
+    @Override
+    public List<Film> getPopular(Integer count) {
+        throw new UnsupportedOperationException("InMemoryFilmStorage: Метод не поддерживается");
+    }
+
+    @Override
+    public void deleteAllFilms() {
+        throw new UnsupportedOperationException("InMemoryFilmStorage: Метод не поддерживается");
     }
 }

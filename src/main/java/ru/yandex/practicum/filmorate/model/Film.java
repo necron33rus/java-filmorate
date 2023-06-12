@@ -39,8 +39,10 @@ public class Film {
     private int duration;
 
     private Set<Long> likes = new HashSet<>();
+
     @NotNull
     private Rating mpa;
+
     private Set<Genre> genres = new HashSet<>();
 
     public Map<String, Object> toMap() {

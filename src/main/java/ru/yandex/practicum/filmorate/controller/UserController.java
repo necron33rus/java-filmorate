@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,27 +15,21 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 @Slf4j
+@RequiredArgsConstructor
 public class UserController {
-
-    private final UserService userService;
-    private final UserStorage userStorage;
-
     @Autowired
-    public UserController(UserService userService, @Qualifier("userDbStorage") UserStorage userStorage) {
-        this.userService = userService;
-        this.userStorage = userStorage;
-    }
+    private final UserService userService;
 
     @GetMapping
     public List<User> getAllUsers() {
         log.info("UserController: Получен GET запрос к эндпоинту /users");
-        return userStorage.getAllUsers();
+        return userService.getAllUsers();
     }
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Long id) {
         log.info("UserController: Получен GET запрос к эндпоинту /users/{}", id);
-        return userStorage.getUserById(id);
+        return userService.getUserById(id);
     }
 
     @GetMapping("/{id}/friends")
@@ -64,18 +59,24 @@ public class UserController {
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
         log.info("UserController: Получен POST запрос к эндпоинту /users. Тело запроса: {}", user);
-        return userStorage.createUser(user);
+        return userService.createUser(user);
     }
 
     @PutMapping
     public User updateOrCreateUser(@Valid @RequestBody User user) {
         log.info("UserController: Получен PUT запрос к эндпоинту /users. Тело запроса: {}", user);
-        return userStorage.updateUser(user);
+        return userService.updateUser(user);
     }
 
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
         log.info("Получен DELETE-запрос к эндпоинту /users/{}", id);
-        userStorage.deleteUser(id);
+        userService.deleteUser(id);
+    }
+
+    @DeleteMapping
+    public void deleteAllUsers() {
+        log.info("Получен DELETE-запрос к эндпоинту /users");
+        userService.deleteAllUsers();
     }
 }

@@ -55,7 +55,7 @@ public class UserServiceTest {
 
     @Test
     public void testCreateUserAndGetUserById() {
-        firstUser = userStorage.createUser(firstUser);
+        userStorage.createUser(firstUser);
         Optional<User> userOptional = Optional.ofNullable(userStorage.getUserById(firstUser.getId()));
         assertThat(userOptional)
                 .hasValueSatisfying(user ->
@@ -66,8 +66,8 @@ public class UserServiceTest {
 
     @Test
     public void testGetUsers() {
-        firstUser = userStorage.createUser(firstUser);
-        secondUser = userStorage.createUser(secondUser);
+        userStorage.createUser(firstUser);
+        userStorage.createUser(secondUser);
         List<User> listUsers = userStorage.getAllUsers();
         assertThat(listUsers).contains(firstUser);
         assertThat(listUsers).contains(secondUser);
@@ -75,7 +75,7 @@ public class UserServiceTest {
 
     @Test
     public void testUpdateUser() {
-        firstUser = userStorage.createUser(firstUser);
+        userStorage.createUser(firstUser);
         User updateUser = User.builder()
                 .id(firstUser.getId())
                 .name("UpdateFirst")
@@ -92,7 +92,7 @@ public class UserServiceTest {
 
     @Test
     public void deleteUser() {
-        firstUser = userStorage.createUser(firstUser);
+        userStorage.createUser(firstUser);
         userStorage.deleteUser(firstUser.getId());
         List<User> listUsers = userStorage.getAllUsers();
         assertThat(listUsers).hasSize(0);
@@ -100,8 +100,8 @@ public class UserServiceTest {
 
     @Test
     public void testAddFriend() {
-        firstUser = userStorage.createUser(firstUser);
-        secondUser = userStorage.createUser(secondUser);
+        userStorage.createUser(firstUser);
+        userStorage.createUser(secondUser);
         userService.addFriend(firstUser.getId(), secondUser.getId());
         assertThat(userService.getFriends(firstUser.getId())).hasSize(1);
         assertThat(userService.getFriends(firstUser.getId())).contains(secondUser);
@@ -109,9 +109,9 @@ public class UserServiceTest {
 
     @Test
     public void testDeleteFriend() {
-        firstUser = userStorage.createUser(firstUser);
-        secondUser = userStorage.createUser(secondUser);
-        thirdUser = userStorage.createUser(thirdUser);
+        userStorage.createUser(firstUser);
+        userStorage.createUser(secondUser);
+        userStorage.createUser(thirdUser);
         userService.addFriend(firstUser.getId(), secondUser.getId());
         userService.addFriend(firstUser.getId(), thirdUser.getId());
         userService.deleteFriend(firstUser.getId(), secondUser.getId());
@@ -121,9 +121,9 @@ public class UserServiceTest {
 
     @Test
     public void testGetFriends() {
-        firstUser = userStorage.createUser(firstUser);
-        secondUser = userStorage.createUser(secondUser);
-        thirdUser = userStorage.createUser(thirdUser);
+        userStorage.createUser(firstUser);
+        userStorage.createUser(secondUser);
+        userStorage.createUser(thirdUser);
         userService.addFriend(firstUser.getId(), secondUser.getId());
         userService.addFriend(firstUser.getId(), thirdUser.getId());
         assertThat(userService.getFriends(firstUser.getId())).hasSize(2);
@@ -132,9 +132,9 @@ public class UserServiceTest {
 
     @Test
     public void testGetCommonFriends() {
-        firstUser = userStorage.createUser(firstUser);
-        secondUser = userStorage.createUser(secondUser);
-        thirdUser = userStorage.createUser(thirdUser);
+        userStorage.createUser(firstUser);
+        userStorage.createUser(secondUser);
+        userStorage.createUser(thirdUser);
         userService.addFriend(firstUser.getId(), secondUser.getId());
         userService.addFriend(firstUser.getId(), thirdUser.getId());
         userService.addFriend(secondUser.getId(), firstUser.getId());

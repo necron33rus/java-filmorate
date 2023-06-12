@@ -100,7 +100,7 @@ public class FilmServiceTest {
 
     @Test
     public void testCreateFilmAndGetFilmById() {
-        firstFilm = filmStorage.createFilm(firstFilm);
+        filmStorage.createFilm(firstFilm);
         Optional<Film> filmOptional = Optional.ofNullable(filmStorage.getFilmById(firstFilm.getId()));
         assertThat(filmOptional)
                 .hasValueSatisfying(film -> AssertionsForClassTypes.assertThat(film)
@@ -111,9 +111,9 @@ public class FilmServiceTest {
 
     @Test
     public void testGetFilms() {
-        firstFilm = filmStorage.createFilm(firstFilm);
-        secondFilm = filmStorage.createFilm(secondFilm);
-        thirdFilm = filmStorage.createFilm(thirdFilm);
+        filmStorage.createFilm(firstFilm);
+        filmStorage.createFilm(secondFilm);
+        filmStorage.createFilm(thirdFilm);
         List<Film> listFilms = filmStorage.getFilms();
         assertThat(listFilms).contains(firstFilm);
         assertThat(listFilms).contains(secondFilm);
@@ -122,7 +122,7 @@ public class FilmServiceTest {
 
     @Test
     public void testUpdateFilm() {
-        firstFilm = filmStorage.createFilm(firstFilm);
+        filmStorage.createFilm(firstFilm);
         Film updateFilm = Film.builder()
                 .id(firstFilm.getId())
                 .name("UpdateName")
@@ -131,6 +131,7 @@ public class FilmServiceTest {
                 .duration(133)
                 .build();
         updateFilm.setMpa(new Rating(1, "G","Фильм демонстрируется без ограничений"));
+        updateFilm.setGenres(new HashSet<>(Arrays.asList(new Genre(2, "Драма"))));
         Optional<Film> testUpdateFilm = Optional.ofNullable(filmStorage.updateFilm(updateFilm));
         assertThat(testUpdateFilm)
                 .hasValueSatisfying(film ->
@@ -142,8 +143,8 @@ public class FilmServiceTest {
 
     @Test
     public void deleteFilm() {
-        firstFilm = filmStorage.createFilm(firstFilm);
-        secondFilm = filmStorage.createFilm(secondFilm);
+        filmStorage.createFilm(firstFilm);
+        filmStorage.createFilm(secondFilm);
         filmStorage.deleteFilm(firstFilm.getId());
         List<Film> listFilms = filmStorage.getFilms();
         assertThat(listFilms).hasSize(1);
@@ -154,44 +155,51 @@ public class FilmServiceTest {
     }
 
     @Test
+    public void deleteAllFilms() {
+        filmStorage.createFilm(firstFilm);
+        filmStorage.createFilm(secondFilm);
+        filmStorage.deleteAllFilms();
+        List<Film> listFilms = filmStorage.getFilms();
+        assertThat(listFilms).hasSize(0);
+    }
+
+    @Test
     public void testAddLike() {
-        firstUser = userStorage.createUser(firstUser);
-        firstFilm = filmStorage.createFilm(firstFilm);
+        userStorage.createUser(firstUser);
+        filmStorage.createFilm(firstFilm);
         filmService.addLike(firstFilm.getId(), firstUser.getId());
-        firstFilm = filmStorage.getFilmById(firstFilm.getId());
-        assertThat(firstFilm.getLikes()).hasSize(1);
-        assertThat(firstFilm.getLikes()).contains(firstUser.getId());
+        assertThat(filmStorage.getFilmById(firstFilm.getId()).getLikes()).hasSize(1);
+        assertThat(filmStorage.getFilmById(firstFilm.getId()).getLikes()).contains(firstUser.getId());
     }
 
     @Test
     public void testDeleteLike() {
-        firstUser = userStorage.createUser(firstUser);
-        secondUser = userStorage.createUser(secondUser);
-        firstFilm = filmStorage.createFilm(firstFilm);
+        userStorage.createUser(firstUser);
+        userStorage.createUser(secondUser);
+        filmStorage.createFilm(firstFilm);
         filmService.addLike(firstFilm.getId(), firstUser.getId());
         filmService.addLike(firstFilm.getId(), secondUser.getId());
         filmService.deleteLike(firstFilm.getId(), firstUser.getId());
-        firstFilm = filmStorage.getFilmById(firstFilm.getId());
-        assertThat(firstFilm.getLikes()).hasSize(1);
-        assertThat(firstFilm.getLikes()).contains(secondUser.getId());
+        assertThat(filmStorage.getFilmById(firstFilm.getId()).getLikes()).hasSize(1);
+        assertThat(filmStorage.getFilmById(firstFilm.getId()).getLikes()).contains(secondUser.getId());
     }
 
     @Test
     public void testGetPopularFilms() {
 
-        firstUser = userStorage.createUser(firstUser);
-        secondUser = userStorage.createUser(secondUser);
-        thirdUser = userStorage.createUser(thirdUser);
+        userStorage.createUser(firstUser);
+        userStorage.createUser(secondUser);
+        userStorage.createUser(thirdUser);
 
-        firstFilm = filmStorage.createFilm(firstFilm);
+        filmStorage.createFilm(firstFilm);
         filmService.addLike(firstFilm.getId(), firstUser.getId());
 
-        secondFilm = filmStorage.createFilm(secondFilm);
+        filmStorage.createFilm(secondFilm);
         filmService.addLike(secondFilm.getId(), firstUser.getId());
         filmService.addLike(secondFilm.getId(), secondUser.getId());
         filmService.addLike(secondFilm.getId(), thirdUser.getId());
 
-        thirdFilm = filmStorage.createFilm(thirdFilm);
+        filmStorage.createFilm(thirdFilm);
         filmService.addLike(thirdFilm.getId(), firstUser.getId());
         filmService.addLike(thirdFilm.getId(), secondUser.getId());
 

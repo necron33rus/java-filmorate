@@ -62,6 +62,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void deleteUser(Long userId) {
+        throw new UnsupportedOperationException("InMemoryFilmStorage: Метод не поддерживается");
     }
 
     public void validate(User user) {
@@ -70,5 +71,15 @@ public class InMemoryUserStorage implements UserStorage {
             log.debug("InMemoryUserStorage: Поле name не задано. Значение {} заменено на {} из поля login", user.getName(),
                     user.getLogin());
         }
+    }
+
+    @Override
+    public boolean isUserExist(Long userId) {
+        throw new UnsupportedOperationException("InMemoryFilmStorage: Метод не поддерживается");
+    }
+
+    @Override
+    public void deleteAllUsers() {
+        throw new UnsupportedOperationException("InMemoryFilmStorage: Метод не поддерживается");
     }
 }
