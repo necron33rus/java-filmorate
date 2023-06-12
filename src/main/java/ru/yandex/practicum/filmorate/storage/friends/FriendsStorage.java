@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.friends;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -11,15 +11,11 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class FriendsStorage {
     private final JdbcTemplate jdbcTemplate;
+    @Qualifier("userDbStorage")
     private final UserStorage userStorage;
-
-    @Autowired
-    public FriendsStorage(JdbcTemplate jdbcTemplate, @Qualifier("userDbStorage") UserStorage userStorage) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.userStorage = userStorage;
-    }
 
     public void addFriendship(Long userId, Long friendId) {
         if (userStorage.isUserExist(userId) && userStorage.isUserExist(friendId)) {

@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -15,19 +15,14 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class FilmService {
+    @Qualifier("filmDbStorage")
     private final FilmStorage filmStorage;
+    @Qualifier("userDbStorage")
     private final UserStorage userStorage;
+    @Qualifier("likeDbStorage")
     private final LikeStorage likeStorage;
-
-    @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
-                       @Qualifier("userDbStorage") UserStorage userStorage,
-                       @Qualifier("likeDbStorage") LikeStorage likeStorage) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
-        this.likeStorage = likeStorage;
-    }
 
     public void addLike(Long filmId, Long userId) {
         if (isFilmAndUserExist(filmId, userId)) {
@@ -94,18 +89,14 @@ public class FilmService {
 
     private boolean isFilmExist(Long filmId) {
         if (filmStorage.getFilms().contains(filmStorage.getFilmById(filmId))) {
-            return true;
+            log.info("Валидация: Фильм с идентификатором {} найден", filmId);
         } else {
             throw new ValidationException("Валидация: Фильм с идентификатором " + filmId + " не найден");
         }
+        return true;
     }
 
     private boolean isFilmAndUserExist(Long filmId, Long userId) {
-        isFilmExist(filmId);
-        if (userStorage.getAllUsers().contains(userStorage.getUserById(userId))) {
-            return true;
-        } else {
-            throw new ValidationException("Валидация: Пользователь с идентификатором " + userId + " не найден");
-        }
+        return isFilmExist(filmId) && userStorage.isUserExist(userId);
     }
 }

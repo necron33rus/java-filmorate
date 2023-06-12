@@ -1,7 +1,8 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -19,18 +20,13 @@ import java.util.Set;
 
 @Component("filmDbStorage")
 @Slf4j
+@RequiredArgsConstructor
+@Primary
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final RatingStorage ratingStorage;
     private final LikeStorage likeStorage;
-
-    @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, RatingStorage ratingStorage, LikeStorage likeStorage) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.ratingStorage = ratingStorage;
-        this.likeStorage = likeStorage;
-    }
 
     @Override
     public List<Film> getFilms() {

@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.rating;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -11,13 +11,9 @@ import javax.validation.ValidationException;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class RatingStorage {
     private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public RatingStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     public List<Rating> getAllRatings() {
         String sqlString = "SELECT * FROM RATING";
