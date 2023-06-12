@@ -7,10 +7,14 @@ public enum FriendshipStatuses {
 
     public static int getIdByEnumName(FriendshipStatuses friendshipStatuses) {
         switch (friendshipStatuses) {
-            case REQESTED: return 1;
-            case APPROVED: return 2;
-            case REJECTED: return 3;
-            default: return 0;
+            case REQESTED:
+                return 1;
+            case APPROVED:
+                return 2;
+            case REJECTED:
+                return 3;
+            default:
+                return 0;
         }
     }
 }

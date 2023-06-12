@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import javax.validation.ValidationException;
@@ -63,7 +62,6 @@ public class GenreStorage {
         }
         return outputGenre;
     }
-
 
 
     public List<Genre> getFilmGenres(Long filmId) {

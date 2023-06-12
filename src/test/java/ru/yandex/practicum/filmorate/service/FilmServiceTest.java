@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,15 +15,12 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-
-import org.assertj.core.api.AssertionsForClassTypes;
-
-import javax.transaction.Transactional;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -33,9 +31,9 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 @Transactional
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class FilmServiceTest {
-    private  final FilmService filmService;
-    private  final FilmDbStorage filmStorage;
-    private  final UserDbStorage userStorage;
+    private final FilmService filmService;
+    private final FilmDbStorage filmStorage;
+    private final UserDbStorage userStorage;
     private static Film firstFilm;
     private static Film secondFilm;
     private static Film thirdFilm;
@@ -130,7 +128,7 @@ public class FilmServiceTest {
                 .releaseDate(LocalDate.of(1975, 11, 19))
                 .duration(133)
                 .build();
-        updateFilm.setMpa(new Rating(1, "G","Фильм демонстрируется без ограничений"));
+        updateFilm.setMpa(new Rating(1, "G", "Фильм демонстрируется без ограничений"));
         updateFilm.setGenres(new HashSet<>(Arrays.asList(new Genre(2, "Драма"))));
         Optional<Film> testUpdateFilm = Optional.ofNullable(filmStorage.updateFilm(updateFilm));
         assertThat(testUpdateFilm)

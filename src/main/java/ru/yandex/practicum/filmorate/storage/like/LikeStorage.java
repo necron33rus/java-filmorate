@@ -28,6 +28,6 @@ public class LikeStorage {
     public List<Long> getLikes(Long filmId) {
         String sqlString = "SELECT USER_ID FROM REF_FILMS_LIKES WHERE FILM_ID = ?";
         return jdbcTemplate.query(sqlString,
-                (rs, rowNum) -> rs.getLong("user_id"),filmId);
+                (rs, rowNum) -> rs.getLong("user_id"), filmId);
     }
 }
