@@ -12,4 +12,12 @@ public interface UserStorage {
     User createUser(User user);
 
     User updateUser(User user);
+
+    void deleteUser(Long userId);
+
+    void validate(User user);
+
+    boolean isUserExist(Long userId);
+
+    void deleteAllUsers();
 }

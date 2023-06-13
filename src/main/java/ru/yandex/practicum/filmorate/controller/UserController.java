@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @GetMapping
     public List<User> getAllUsers() {
@@ -57,14 +57,24 @@ public class UserController {
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
         log.info("UserController: Получен POST запрос к эндпоинту /users. Тело запроса: {}", user);
-        userService.createUser(user);
-        return user;
+        return userService.createUser(user);
     }
 
     @PutMapping
     public User updateOrCreateUser(@Valid @RequestBody User user) {
         log.info("UserController: Получен PUT запрос к эндпоинту /users. Тело запроса: {}", user);
-        userService.updateUser(user);
-        return user;
+        return userService.updateUser(user);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable Long id) {
+        log.info("Получен DELETE-запрос к эндпоинту /users/{}", id);
+        userService.deleteUser(id);
+    }
+
+    @DeleteMapping
+    public void deleteAllUsers() {
+        log.info("Получен DELETE-запрос к эндпоинту /users");
+        userService.deleteAllUsers();
     }
 }

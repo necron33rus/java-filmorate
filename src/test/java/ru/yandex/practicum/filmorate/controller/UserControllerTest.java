@@ -24,110 +24,114 @@ public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
     private static Gson gson;
-    private static User user;
-    private static User friend;
-    private static User anotherFriend;
-    private static User anotherUser;
-    private static User updatedUser;
+    private static User firstUser;
+    private static User secondUser;
+    private static User thirdUser;
+    private static User forthUser;
 
     @BeforeAll
     public static void beforeAll() {
         gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
                 .create();
-        user = new User();
-        friend = new User();
-        updatedUser = new User();
-        anotherFriend = new User();
-        anotherUser = new User();
     }
 
     @BeforeEach
     public void beforeEach() {
-        user.setId(1L);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
+        firstUser = User.builder()
+                .id(5L)
+                .name("first")
+                .login("First")
+                .email("1@ya.ru")
+                .birthday(LocalDate.of(1980, 12, 23))
+                .build();
 
-        updatedUser.setId(1L);
-        updatedUser.setName("Correct Name_updated");
-        updatedUser.setBirthday(LocalDate.of(2002, 1, 1));
-        updatedUser.setLogin("correctlogin");
-        updatedUser.setEmail("correct.email@mail.ru");
+        secondUser = User.builder()
+                .id(2L)
+                .name("Second")
+                .login("Second")
+                .email("2@ya.ru")
+                .birthday(LocalDate.of(1980, 12, 24))
+                .build();
 
-        friend.setName("friend");
-        friend.setBirthday(LocalDate.of(2002, 1, 1));
-        friend.setLogin("friend");
-        friend.setEmail("friend.email@mail.ru");
+        thirdUser = User.builder()
+                .id(3L)
+                .name("Third")
+                .login("Third")
+                .email("3@ya.ru")
+                .birthday(LocalDate.of(1980, 12, 25))
+                .build();
 
-        anotherUser.setName("Correct Name2");
-        anotherUser.setBirthday(LocalDate.of(2002, 1, 1));
-        anotherUser.setLogin("correctlogin2");
-        anotherUser.setEmail("correct.email2@mail.ru");
+        forthUser = User.builder()
+                .id(4L)
+                .name("Third")
+                .login("Third")
+                .email("3@ya.ru")
+                .birthday(LocalDate.of(1980, 12, 25))
+                .build();
+    }
 
-        anotherFriend.setName("friend2");
-        anotherFriend.setBirthday(LocalDate.of(2002, 1, 1));
-        anotherFriend.setLogin("friend2");
-        anotherFriend.setEmail("friend2.email@mail.ru");
+    @AfterEach
+    public void afterEach() throws Exception {
+        mockMvc.perform(delete("/users/"));
     }
 
     @Test
     public void shouldCreateValidUsers() throws Exception {
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstUser)))
                 .andExpect(status().isOk());
 
-        user.setEmail("incorrect.emailmail.ru");
+        firstUser.setEmail("incorrect.emailmail.ru");
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstUser)))
                 .andExpect(status().isBadRequest());
 
-        user.setLogin("   ");
+        firstUser.setLogin("   ");
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstUser)))
                 .andExpect(status().isBadRequest());
 
-        user.setLogin("incorrect login");
+        firstUser.setLogin("incorrect login");
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstUser)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void shouldUpdateValidUser() throws Exception {
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstUser)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(put("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedUser)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstUser)))
                 .andExpect(status().isOk());
 
-        updatedUser.setLogin("incorrect login");
+        firstUser.setLogin("incorrect login");
         mockMvc.perform(put("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedUser)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstUser)))
                 .andExpect(status().isBadRequest());
 
-        updatedUser.setLogin("   ");
+        firstUser.setLogin("   ");
         mockMvc.perform(put("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedUser)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstUser)))
                 .andExpect(status().isBadRequest());
 
-        updatedUser.setEmail("incorrect.emailmail.ru");
+        firstUser.setEmail("incorrect.emailmail.ru");
         mockMvc.perform(put("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedUser)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstUser)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void shouldGetAllUsers() throws Exception {
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstUser)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedUser)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(secondUser)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/users"))
@@ -137,38 +141,38 @@ public class UserControllerTest {
     @Test
     public void shouldAddFriend() throws Exception {
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstUser)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(friend)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(secondUser)))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(put("/users/1/friends/2"))
+        mockMvc.perform(put("/users/3/friends/4"))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void shouldDeleteFriend() throws Exception {
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstUser)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(friend)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(secondUser)))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(put("/users/1/friends/2"))
+        mockMvc.perform(put("/users/12/friends/13"))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(delete("/users/1/friends/2"))
+        mockMvc.perform(delete("/users/12/friends/13"))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void shouldGetUserById() throws Exception {
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstUser)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/users/1"))
@@ -179,48 +183,48 @@ public class UserControllerTest {
     public void shouldGetAllFriendsByUserId() throws Exception {
 
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstUser)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(friend)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(secondUser)))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(put("/users/1/friends/2"))
+        mockMvc.perform(put("/users/14/friends/15"))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/users/1/friends"))
+        mockMvc.perform(get("/users/14/friends"))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void shouldGetCommonFriends() throws Exception {
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstUser)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(friend)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(secondUser)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(anotherUser)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(thirdUser)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(anotherFriend)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(forthUser)))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(put("/users/1/friends/2"))
+        mockMvc.perform(put("/users/8/friends/9"))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(put("/users/1/friends/3"))
+        mockMvc.perform(put("/users/8/friends/10"))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(put("/users/2/friends/3"))
+        mockMvc.perform(put("/users/9/friends/10"))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/users/1/friends/common/2"))
+        mockMvc.perform(get("/users/8/friends/common/9"))
                 .andExpect(status().isOk());
     }
 

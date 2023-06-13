@@ -9,10 +9,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.utils.LocalDateAdapter;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -25,120 +30,145 @@ public class FilmControllerTest {
     @Autowired
     private MockMvc mockMvc;
     private static Gson gson;
-    private static Film film;
-    private static User user;
+    private static Film firstFilm;
+    private static User firstUser;
     private static User secondUser;
     private static User thirdUser;
-    private static Film updatedFilm;
     private static Film secondFilm;
+    private static Film thirdFilm;
 
     @BeforeAll
     public static void beforeAll() {
         gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
                 .create();
-        film = new Film();
-        secondFilm = new Film();
-        user = new User();
-        secondUser = new User();
-        thirdUser = new User();
-        updatedFilm = new Film();
     }
 
     @BeforeEach
-    public void beforeEach() {
-        film.setId(1L);
-        film.setName("Correct Name");
-        film.setDescription("Correct description");
-        film.setReleaseDate(LocalDate.of(1895, 12, 29));
-        film.setDuration(100);
+    public void beforeEach() throws Exception {
+        firstUser = User.builder()
+                .id(1L)
+                .name("first")
+                .login("First")
+                .email("1@ya.ru")
+                .birthday(LocalDate.of(1980, 12, 23))
+                .build();
 
-        updatedFilm.setId(1L);
-        updatedFilm.setName("Correct Name_updated");
-        updatedFilm.setDescription("Correct description");
-        updatedFilm.setReleaseDate(LocalDate.of(1895, 12, 29));
-        updatedFilm.setDuration(120);
+        secondUser = User.builder()
+                .id(2L)
+                .name("Second")
+                .login("Second")
+                .email("2@ya.ru")
+                .birthday(LocalDate.of(1980, 12, 24))
+                .build();
 
-        user.setId(1L);
-        user.setName("Correct Name");
-        user.setBirthday(LocalDate.of(2002, 1, 1));
-        user.setLogin("correctlogin");
-        user.setEmail("correct.email@mail.ru");
+        thirdUser = User.builder()
+                .id(3L)
+                .name("Third")
+                .login("Third")
+                .email("3@ya.ru")
+                .birthday(LocalDate.of(1980, 12, 25))
+                .build();
 
-        secondUser.setId(667L);
-        secondUser.setName("Correct Name");
-        secondUser.setBirthday(LocalDate.of(2002, 1, 1));
-        secondUser.setLogin("correctlogin");
-        secondUser.setEmail("correct.email@mail.ru");
-        thirdUser.setId(668L);
-        thirdUser.setName("Correct Name");
-        thirdUser.setBirthday(LocalDate.of(2002, 1, 1));
-        thirdUser.setLogin("correctlogin");
-        thirdUser.setEmail("correct.email@mail.ru");
+        firstFilm = Film.builder()
+                .id(1L)
+                .name("film 1")
+                .description("description 1")
+                .releaseDate(LocalDate.of(1961, 10, 5))
+                .duration(114)
+                .build();
+        firstFilm.setMpa(new Rating(1, "G", "Фильм демонстрируется без ограничений"));
+        firstFilm.setLikes(new HashSet<>());
+        firstFilm.setGenres(new HashSet<>(Arrays.asList(new Genre(2, "Драма"),
+                new Genre(1, "Комедия"))));
 
-        secondFilm.setId(999L);
-        secondFilm.setName("Correct Name");
-        secondFilm.setDescription("Correct description.");
-        secondFilm.setReleaseDate(LocalDate.of(1995, 5, 26));
-        secondFilm.setDuration(100);
+        secondFilm = Film.builder()
+                .id(2L)
+                .name("film 2")
+                .description("description 2")
+                .releaseDate(LocalDate.of(2009, 12, 10))
+                .duration(162)
+                .build();
+        secondFilm.setMpa(new Rating(3, "PG-13", "Просмотр не желателен детям до 13 лет"));
+        secondFilm.setLikes(new HashSet<>());
+        secondFilm.setGenres(new HashSet<>(List.of(new Genre(6, "Боевик"))));
+
+        thirdFilm = Film.builder()
+                .id(3L)
+                .name("film 3")
+                .description("description 3")
+                .releaseDate(LocalDate.of(1975, 11, 19))
+                .duration(133)
+                .build();
+        thirdFilm.setMpa(new Rating(4, "R", "Лица, не достигшие 17-летнего возраста, допускаются на фильм только в сопровождении одного из родителей, либо законного представителя"));
+        thirdFilm.setLikes(new HashSet<>());
+        thirdFilm.setGenres(new HashSet<>(List.of(new Genre(2, "Драма"))));
+    }
+
+    @AfterEach
+    public void afterEach() throws Exception {
+        mockMvc.perform(delete("/films/"));
+        mockMvc.perform(delete("/users/"));
     }
 
     @Test
     public void shouldCreateValidFilm() throws Exception {
         mockMvc.perform(post("/films")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(film)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstFilm)))
                 .andExpect(status().isOk());
 
-        film.setDuration(-100);
+        firstFilm.setDuration(-100);
         mockMvc.perform(post("/films")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(film)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstFilm)))
                 .andExpect(status().isBadRequest());
 
-        film.setName("");
+        firstFilm.setName("");
         mockMvc.perform(post("/films")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(film)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstFilm)))
                 .andExpect(status().isBadRequest());
 
-        film.setName("  ");
+        firstFilm.setName("  ");
         mockMvc.perform(post("/films")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(film)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstFilm)))
                 .andExpect(status().isBadRequest());
+        mockMvc.perform(delete("/films/"));
     }
 
     @Test
     public void shouldUpdateValidFilm() throws Exception {
         mockMvc.perform(post("/films")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(film)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstFilm)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(put("/films")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedFilm)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstFilm)))
                 .andExpect(status().isOk());
 
-        updatedFilm.setDuration(-100);
+        firstFilm.setDuration(-100);
         mockMvc.perform(put("/films")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedFilm)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstFilm)))
                 .andExpect(status().isBadRequest());
 
-        updatedFilm.setName("");
+        firstFilm.setName("");
         mockMvc.perform(put("/films")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedFilm)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstFilm)))
                 .andExpect(status().isBadRequest());
 
-        updatedFilm.setName("  ");
+        firstFilm.setName("  ");
         mockMvc.perform(put("/films")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedFilm)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstFilm)))
                 .andExpect(status().isBadRequest());
+        mockMvc.perform(delete("/films/"));
     }
 
     @Test
     public void shouldGetAllFilms() throws Exception {
         mockMvc.perform(post("/films")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(film)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(secondFilm)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(post("/films")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(updatedFilm)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(secondFilm)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/films"))
@@ -148,48 +178,53 @@ public class FilmControllerTest {
     @Test
     public void shouldGetFilmById() throws Exception {
         mockMvc.perform(post("/films")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(film)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstFilm)))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/films/1"))
+        mockMvc.perform(get("/films/9"))
                 .andExpect(status().isOk());
+        mockMvc.perform(delete("/films/"));
+        mockMvc.perform(delete("/users/"));
     }
 
     @Test
     public void shouldAddLike() throws Exception {
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstUser)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(post("/films")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(film)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstFilm)))
                 .andExpect(status().isOk());
-
-        mockMvc.perform(put("/films/1/like/1"))
+        mockMvc.perform(put("/films/2/like/16"))
                 .andExpect(status().isOk());
+        mockMvc.perform(delete("/films/"));
+        mockMvc.perform(delete("/users/"));
     }
 
     @Test
     public void shouldDeleteLike() throws Exception {
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstUser)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(post("/films")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(film)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstFilm)))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(put("/films/1/like/1"))
+        mockMvc.perform(put("/films/7/like/20"))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(delete("/films/1/like/1"))
+        mockMvc.perform(delete("/films/7/like/20"))
                 .andExpect(status().isOk());
+        mockMvc.perform(delete("/films/"));
+        mockMvc.perform(delete("/users/"));
     }
 
     @Test
     public void shouldGetPopularFilm() throws Exception {
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(user)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstUser)))
                 .andExpect(status().isOk());
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(secondUser)))
@@ -199,24 +234,26 @@ public class FilmControllerTest {
                 .andExpect(status().isOk());
 
         mockMvc.perform(post("/films")
-                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(film)))
+                        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(firstFilm)))
                 .andExpect(status().isOk());
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(secondFilm)))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(put("/films/1/like/1"))
+        mockMvc.perform(put("/films/5/like/17"))
                 .andExpect(status().isOk());
-        mockMvc.perform(put("/films/1/like/2"))
+        mockMvc.perform(put("/films/5/like/18"))
                 .andExpect(status().isOk());
-        mockMvc.perform(put("/films/1/like/3"))
+        mockMvc.perform(put("/films/5/like/19"))
                 .andExpect(status().isOk());
-        mockMvc.perform(put("/films/2/like/1"))
+        mockMvc.perform(put("/films/6/like/18"))
                 .andExpect(status().isOk());
-        mockMvc.perform(put("/films/2/like/2"))
+        mockMvc.perform(put("/films/6/like/19"))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/films/popular"))
                 .andExpect(status().isOk());
+        mockMvc.perform(delete("/films/"));
+        mockMvc.perform(delete("/users/"));
     }
 }
